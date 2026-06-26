@@ -1,0 +1,263 @@
+{% extends "base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Team Management{% endblock %}
+{% block page_title %}Organization Team{% endblock %}
+
+{% block css %}
+<style>
+    .team-container {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 32px;
+        align-items: start;
+    }
+
+    .team-card {
+        background: var(--white);
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+    }
+
+    .team-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .team-table th {
+        text-align: left;
+        padding: 16px 24px;
+        background: #f8fafc;
+        font-size: 13px;
+        text-transform: uppercase;
+        color: #64748b;
+        font-weight: 700;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .team-table td {
+        padding: 20px 24px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .member-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .member-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: var(--primary-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .role-badge {
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .role-admin {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .role-recruiter {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .role-viewer {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    /* INVITE WIDGET */
+    .invite-widget {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .invite-form input,
+    .invite-form select {
+        width: 100%;
+        margin-bottom: 16px;
+    }
+
+    .btn-invite {
+        width: 100%;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-invite:hover {
+        background: #155e54;
+        transform: translateY(-2px);
+    }
+
+    .role-select-mini {
+        padding: 4px 8px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        font-size: 12px;
+        outline: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="team-container">
+    <div class="team-main">
+        <div class="team-card">
+            <table class="team-table">
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Role</th>
+                        <th>Joined</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Current User (Owner/Admin) -->
+                    <tr>
+                        <td>
+                            <div class="member-info">
+                                <div class="member-avatar">
+                                    {{ request.user.email|slice:":1"|upper }}
+                                </div>
+                                <div>
+                                    <p class="fw-700 mb-0">
+                                        {{ request.user.get_full_name|default:request.user.username }} 
+                                        (You)
+                                    </p>
+                                    <span class="text-muted-sm">{{ request.user.email }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="role-badge role-admin">Owner</span></td>
+                        <td>{{ request.user.date_joined|date:"M d, Y" }}</td>
+                        <td><span class="text-muted">Primary Admin</span></td>
+                    </tr>
+
+                    {% for member in team_members %}
+                    <tr>
+                        <td>
+                            <div class="member-info">
+                                <div class="member-avatar">
+                                    {{ member.user.email|slice:":1"|upper }}
+                                </div>
+                                <div>
+                                    <p class="fw-700 mb-0">{{ member.user.get_full_name|default:member.user.username }}
+                                    </p>
+                                    <span class="text-muted-sm">{{ member.user.email }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <form method="POST" style="margin: 0;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_role">
+                                <input type="hidden" name="member_id" value="{{ member.id }}">
+                                <select name="role" class="role-select-mini" onchange="this.form.submit()">
+                                    <option value="admin" {% if member.role == 'admin' %}selected{% endif %}>
+                                        Admin
+                                    </option>
+                                    <option value="recruiter" {% if member.role == 'recruiter' %}selected{% endif %}>
+                                        Recruiter
+                                    </option>
+                                    <option value="viewer" {% if member.role == 'viewer' %}selected{% endif %}>
+                                        Viewer
+                                    </option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>{{ member.joined_at|date:"M d, Y" }}</td>
+                        <td>
+                            <form method="POST" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="remove">
+                                <input type="hidden" name="member_id" value="{{ member.id }}">
+                                <button type="submit" class="btn-icon text-error-semibold"
+                                    style="background: none; border: none; cursor: pointer;">
+                                    <i class="fa-solid fa-user-minus"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <aside class="team-sidebar">
+        <div class="invite-widget">
+            <h4 class="mb-16">Invite Team Member</h4>
+            <p class="text-muted-sm mb-20">New members will receive an email invitation to join your organization.</p>
+
+            <form class="invite-form" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="invite">
+                <label class="field-label-sm">Email Address</label>
+                <input type="email" name="email" required placeholder="name@company.com" class="form-control-l">
+
+                <label class="field-label-sm">Assign Role</label>
+                <select name="role" class="form-control-l">
+                    <option value="recruiter">Recruiter</option>
+                    <option value="admin">Admin</option>
+                    <option value="viewer">Viewer</option>
+                </select>
+
+                <button type="button" class="btn-invite"
+                    onclick="alert('In a real production environment, this would send an invitation email. Feature coming soon!')">
+                    Send Invitation
+                </button>
+            </form>
+        </div>
+
+        <div class="card mt-24" style="background: #f8fafc; border: 1px dashed var(--border);">
+            <h5 class="fw-700 mb-8" style="font-size: 14px;">Team Limits</h5>
+            <p class="text-muted-sm">You are currently on the 
+                <strong> {{ subscription.plan|default:"Free"|title}} </strong> 
+                    plan.
+            </p>
+            <div class="flex-between mt-12" style="font-size: 12px;">
+                <span>Seats Used</span>
+                <span class="fw-700">1 / 
+                    {% if subscription.plan == 'free' %}1{% elif subscription.plan == 'pro' %}
+                        5
+                    {%else %}
+                        Unlimited
+                    {% endif %}
+                </span>
+            </div>
+            {% if subscription.plan == 'free' %}
+            <a href="{% url 'recruiter_billing' %}" class="btn-post-job mt-16"
+                style="font-size: 12px; padding: 8px; text-align: center; display: block;">Upgrade for more seats</a>
+            {% endif %}
+        </div>
+    </aside>
+</div>
+{% endblock %}

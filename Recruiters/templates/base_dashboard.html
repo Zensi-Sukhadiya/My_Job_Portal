@@ -1,0 +1,236 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+
+    {% if request.user.role == 'student' %}
+    <link rel="stylesheet" href="{% static 'css/student_dashboard.css' %}">
+    {% else %}
+    <link rel="stylesheet" href="{% static 'css/recruiter_dashboard.css' %}">
+    {% endif %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    {% block css %}{% endblock %}
+</head>
+
+<body>
+
+    <div class="dashboard-wrapper">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="job">Job</span><span class="portal">Portal</span>
+            </div>
+
+            <nav class="side-menu">
+                {% if request.user.role == 'recruiter' %}
+                <a href="{% url 'recruiter_dashboard' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'recruiter_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-gauge"></i> Dashboard
+                </a>
+                <a href="{% url 'manage_jobs' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'manage_jobs' or request.resolver_match.url_name == 'post_job' or request.resolver_match.url_name == 'edit_job' %}active{% endif %}">
+                    <i class="fa-solid fa-briefcase"></i> My Jobs
+                </a>
+                <a href="{% url 'manage_applications' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'manage_applications' %}active{% endif %}">
+                    <i class="fa-solid fa-file-lines"></i> Applications
+                </a>
+                <a href="{% url 'manage_candidates' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'manage_candidates' %}active{% endif %}">
+                    <i class="fa-solid fa-users"></i> Candidates
+                </a>
+                <a href="{% url 'recruiter_analytics' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'recruiter_analytics' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-line"></i> Analytics
+                </a>
+                <a href="{% url 'job_listings' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'market_insights' %}active{% endif %}">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i> Market Insights
+                </a>
+                <div class="side-divider"></div>
+                <a href="{% url 'recruiter_profile' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'recruiter_profile' %}active{% endif %}">
+                    <i class="fa-solid fa-building"></i> Company Profile
+                </a>
+                <a href="{% url 'recruiter_billing' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'recruiter_billing' %}active{% endif %}">
+                    <i class="fa-solid fa-credit-card"></i> Billing & Plans
+                </a>
+                <a href="{% url 'manage_team' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'manage_team' %}active{% endif %}">
+                    <i class="fa-solid fa-user-group"></i> Team Management
+                </a>
+                <a href="{% url 'recruiter_settings' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'recruiter_settings' %}active{% endif %}">
+                    <i class="fa-solid fa-gear"></i> Settings
+                </a>
+                {% elif request.user.role == 'student' %}
+                <a href="{% url 'student_dashboard' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-gauge"></i> My Dashboard
+                </a>
+                <a href="{% url 'my_applications' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'my_applications' %}active{% endif %}">
+                    <i class="fa-solid fa-paper-plane"></i> My Applications
+                </a>
+                <a href="{% url 'saved_jobs' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'saved_jobs' %}active{% endif %}">
+                    <i class="fa-solid fa-bookmark"></i> Saved Jobs
+                </a>
+                <a href="{% url 'messages_list' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'messages_list' %}active{% endif %}">
+                    <i class="fa-solid fa-envelope"></i> Messages
+                </a>
+                <a href="{% url 'notifications_list' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}">
+                    <i class="fa-solid fa-bell"></i> Notifications
+                </a>
+                <div class="side-divider"></div>
+                <a href="{% url 'job_listings' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'job_listings' %}active{% endif %}">
+                    <i class="fa-solid fa-search"></i> Browse Jobs
+                </a>
+                <a href="{% url 'edit_profile' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'edit_profile' %}active{% endif %}">
+                    <i class="fa-solid fa-user-pen"></i> Edit Profile
+                </a>
+                <a href="{% url 'student_settings' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'student_settings' %}active{% endif %}">
+                    <i class="fa-solid fa-user-gear"></i> Settings
+                </a>
+                {% elif request.user.role == 'admin' or request.user.is_superuser %}
+                <a href="{% url 'platform_admin_dashboard' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'platform_admin_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-solar-panel"></i> Platform Admin
+                </a>
+                <a href="{% url 'admin_manage_jobs' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'admin_manage_jobs' %}active{% endif %}">
+                    <i class="fa-solid fa-briefcase"></i> Job Moderation
+                </a>
+                <a href="{% url 'admin_manage_recruiters' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'admin_manage_recruiters' %}active{% endif %}">
+                    <i class="fa-solid fa-building-circle-check"></i> Recruiters
+                </a>
+                <a href="{% url 'admin_manage_users' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'admin_manage_users' %}active{% endif %}">
+                    <i class="fa-solid fa-users-gear"></i> Manage Users
+                </a>
+                <a href="{% url 'admin_view_all_applications' %}"
+                    class="side-link {% if request.resolver_match.url_name == 'admin_view_all_applications' %}active{% endif %}">
+                    <i class="fa-solid fa-file-invoice"></i> All Applications
+                </a>
+                {% endif %}
+
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="{% url 'logout' %}" class="logout-item" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Log Out</span>
+                </a>
+            </div>
+        </aside>
+
+
+        <!-- MAIN AREA -->
+        <div class="main-area">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h4>{% block page_title %}Dashboard{% endblock %}</h4>
+                </div>
+
+                <div class="topbar-right">
+                    <!-- Notifications -->
+                    <div class="notification-dropdown">
+                        <div class="notification-trigger">
+                            <i class="fa-solid fa-bell"></i>
+                            {% if unread_notifications_count > 0 %}
+                            <span class="notification-badge">{{ unread_notifications_count }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="dropdown-menu">
+                            <div class="p-12 border-bottom-light flex-between align-items-center">
+                                <h5 class="fw-700 mb-0">Notifications</h5>
+                                <a href="{% url 'notifications_list' %}" class="text-primary-semibold"
+                                    style="font-size: 12px;">View All</a>
+                            </div>
+                            <div class="notification-list-sm">
+                                {% for notif in recent_notifications %}
+                                <a href="{% url 'mark_notification_read' notif.id %}"
+                                    class="notif-item-sm {% if not notif.is_read %}unread{% endif %}">
+                                    <div class="notif-title-sm">{{ notif.title }}</div>
+                                    <div class="notif-time-sm">{{ notif.timestamp|timesince }} ago</div>
+                                </a>
+                                {% empty %}
+                                <div class="p-20 text-center text-muted-sm">No new notifications</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-profile-dropdown">
+                        <div class="user-identity">
+                            {% if request.user.profile_picture %}
+                            <img src="{{ request.user.profile_picture.url }}" class="avatar-sm" alt="Profile">
+                            {% else %}
+                            <div class="avatar-placeholder-sm">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            {% endif %}
+                            <div class="user-details-sm">
+                                <span class="user-name-sm">{{ request.user.name|default:request.user.username }}</span>
+                                <span class="user-role-sm">{{ request.user.get_role_display }}</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-down text-muted-sm"
+                                style="font-size: 10px; margin-left: 4px;"></i>
+                        </div>
+
+                        <div class="dropdown-menu">
+                            <div class="p-12 border-bottom-light mb-8">
+                                <p class="text-muted-sm mb-0">Signed in as</p>
+                                <p class="fw-700 text-dark" style="font-size: 13px;">{{ request.user.email }}</p>
+                            </div>
+                            {% if request.user.role == 'recruiter' %}
+                            <a href="{% url 'recruiter_profile' %}" class="dropdown-item">
+                                <i class="fa-solid fa-building"></i> Company Profile
+                            </a>
+                            {% else %}
+                            <a href="{% url 'profile' %}" class="dropdown-item">
+                                <i class="fa-solid fa-circle-user"></i> My Profile
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'student_settings' %}" class="dropdown-item">
+                                <i class="fa-solid fa-gear"></i> Settings
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="{% url 'logout' %}" class="dropdown-item logout">
+                                <i class="fa-solid fa-right-from-bracket"></i> Log Out
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- CONTENT -->
+            <main class="dashboard-content">
+                {% block content %}{% endblock %}
+            </main>
+
+        </div>
+
+    </div>
+
+    {% block js %}{% endblock %}
+</body>
+
+</html>

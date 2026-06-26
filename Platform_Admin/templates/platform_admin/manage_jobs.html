@@ -1,0 +1,100 @@
+{% extends "base_dashboard.html" %}
+{% block title %}Manage Jobs{% endblock %}
+{% block page_title %}Job Moderation Queue{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="card-header">
+        <h3 class="card-title">All Job Postings</h3>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Job Title</th>
+                <th>Recruiter</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs %}
+            <tr>
+                <td>{{ job.title }}<br><small class="text-muted">{{ job.company }}</small></td>
+                <td>{{ job.recruiter.name|default:job.recruiter.username }}</td>
+                <td>
+                    {% if job.is_approved %}
+                    <span class="badge badge-success">Approved</span>
+                    {% else %}
+                    <span class="badge badge-warning">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="flex-align-center-gap-8">
+                        {% if not job.is_approved %}
+                        <a href="{% url 'approve_job' job.id %}" class="btn-action-sm btn-success-sm" title="Approve">
+                            <i class="fa-solid fa-check"></i>
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'reject_job' job.id %}" class="btn-action-sm btn-error-sm"
+                            title="Reject/Disable">
+                            <i class="fa-solid fa-xmark"></i>
+                        </a>
+                        <a href="{% url 'job_details' job.id %}" class="btn-action-sm btn-info-sm" title="View details"
+                            target="_blank">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center p-32">No jobs to moderate.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}
+
+{% block css %}
+<style>
+    .flex-align-center-gap-8 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-action-sm {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        cursor: pointer;
+        border: none;
+        font-size: 14px;
+        text-decoration: none;
+    }
+
+    .btn-success-sm {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .btn-error-sm {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .btn-info-sm {
+        background: #e0f2fe;
+        color: #075985;
+    }
+
+    .badge-warning {
+        background: #fffbeb;
+        color: #b45309;
+    }
+</style>
+{% endblock %}

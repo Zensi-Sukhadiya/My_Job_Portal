@@ -1,0 +1,177 @@
+{% extends "base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Market Insights{% endblock %}
+{% block page_title %}Recruitment Market Insights{% endblock %}
+
+{% block css %}
+<style>
+    .insights-hero {
+        background: linear-gradient(135deg, #0d2e29 0%, #1e6f63 100%);
+        border-radius: 20px;
+        padding: 40px;
+        color: white;
+        margin-bottom: 32px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .insights-hero::after {
+        content: '\f201';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        right: -40px;
+        bottom: -40px;
+        font-size: 240px;
+        opacity: 0.05;
+        transform: rotate(-15deg);
+    }
+
+    .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    .insight-card {
+        background: var(--white);
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        padding: 24px;
+        transition: all 0.2s;
+    }
+
+    .insight-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .insight-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+    }
+
+    .insight-title {
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--text-dark);
+    }
+
+    .trend-badge {
+        font-size: 12px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        background: #f0fdf4;
+        color: #166534;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+    }
+
+    .stat-row:last-child {
+        border-bottom: none;
+    }
+
+    .stat-label {
+        color: #64748b;
+    }
+
+    .stat-value {
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    .benchmark-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px dashed var(--border);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="insights-hero">
+    <div style="position: relative; z-index: 2;">
+        <h2 style="font-size: 32px; margin-bottom: 12px;">Market Competitive Analysis</h2>
+        <p style="color: rgba(255,255,255,0.8); font-size: 16px; max-width: 600px;">
+            Get real-time data on hiring trends, salary benchmarks, and demand per category
+            across the entire platform to optimize your recruitment strategy.
+        </p>
+        <div class="flex-align-center gap-24 mt-32">
+            <div>
+                <p style="font-size: 12px; text-transform: uppercase; color: rgba(255,255,255,0.6);">Total Market Jobs
+                </p>
+                <h3 style="font-size: 24px;">{{ total_market_jobs }}</h3>
+            </div>
+            <div style="width: 1px; height: 40px; background: rgba(255,255,255,0.2);"></div>
+            <div>
+                <p style="font-size: 12px; text-transform: uppercase; color: rgba(255,255,255,0.6);">Top Hiring Location
+                </p>
+                <h3 style="font-size: 24px;">{{ top_location }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="fw-800 mb-20">Category Performance</h3>
+<div class="insights-grid">
+    {% for item in insights %}
+    <div class="insight-card">
+        <div class="insight-header">
+            <h4 class="insight-title">{{ item.name }}</h4>
+            <div class="trend-badge">
+                <i class="fa-solid fa-arrow-trend-up"></i> {{ item.demand_trend }}%
+            </div>
+        </div>
+
+        <div class="stat-row">
+            <span class="stat-label">Platform Demand</span>
+            <span class="stat-value">{{ item.job_count }} Active Jobs</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Avg. Benchmark (LPA)</span>
+            <span class="stat-value">₹{{ item.avg_salary }}L - ₹{{ item.avg_salary|add:5 }}L</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Hiring Competition</span>
+            <span class="stat-value"
+                style="color: {% if item.competition_level == 'High' %}#ef4444{% elif item.competition_level == 'Medium' %}#f59e0b{% else %}#10b981{% endif %};">
+                {{ item.competition_level }}
+            </span>
+        </div>
+
+        <div style="margin-top: 20px; height: 4px; background: #f1f5f9; border-radius: 2px;">
+            <div
+                style="width: {{ item.demand_trend|add:40 }}%; height: 100%; background: {{ item.color }}; border-radius: 2px;">
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="benchmark-card">
+    <div class="flex-between align-center">
+        <div>
+            <h4 class="fw-800 mb-8">Want deeper regional insights?</h4>
+            <p class="text-muted-sm">Upgrade to our Enterprise plan to unlock city-specific salary benchmarks and
+                competitor talent mapping.</p>
+        </div>
+        <a href="{% url 'recruiter_billing' %}" class="btn-publish-job"
+            style="width: auto; padding: 12px 24px; text-decoration: none;">Upgrade Now</a>
+    </div>
+</div>
+{% endblock %}

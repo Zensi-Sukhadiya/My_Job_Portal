@@ -1,0 +1,524 @@
+/* JOB APPLY PAGE STYLES - Premium Refactor */
+
+/* Hero Section - Matching Home Aesthetics */
+.page-header {
+  background: radial-gradient(circle at 100% 100%, var(--primary-light) 0%, #ffffff 100%);
+  padding: 80px 0;
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.page-header h1 {
+  font-size: 3.5rem;
+  font-weight: 950;
+  margin-bottom: 1rem;
+  letter-spacing: -0.05em;
+  color: var(--slate-950);
+}
+
+.page-header .breadcrumb {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  color: var(--slate-500);
+}
+
+.page-header .breadcrumb a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.page-header .breadcrumb a:hover {
+  filter: brightness(1.2);
+}
+
+/* Job Brief Header */
+.job-header {
+  background: var(--slate-50);
+  padding: 4rem 0;
+}
+
+.job-header .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.job-info h2 {
+  font-size: 2.25rem;
+  font-weight: 950;
+  color: var(--slate-950);
+  margin-bottom: 1rem;
+  letter-spacing: -0.03em;
+}
+
+.company-name {
+  color: var(--slate-600);
+  font-size: 1rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.company-name i {
+  color: var(--primary);
+  font-size: 1.25rem;
+}
+
+.job-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  font-size: 0.8125rem;
+  color: var(--slate-500);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2rem;
+}
+
+.job-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  background: var(--white);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--slate-200);
+}
+
+.job-meta i {
+  color: var(--primary);
+}
+
+.job-meta strong {
+  color: var(--primary);
+}
+
+.job-desc-short {
+  color: var(--slate-600);
+  line-height: 1.6;
+  max-width: 800px;
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+/* Layout Grid */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 3.5rem;
+  max-width: 1400px;
+  margin: 4rem auto;
+  padding: 0 2rem;
+}
+
+/* Form Card - Glassmorphism Feel */
+.job-form-card {
+  background: var(--white);
+  padding: 3.5rem;
+  border-radius: 2.5rem;
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.form-title {
+  font-size: 1.75rem;
+  font-weight: 950;
+  color: var(--slate-950);
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.03em;
+}
+
+.paragh {
+  color: var(--slate-500);
+  margin-bottom: 3rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.form-group {
+  margin-bottom: 2rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--slate-800);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-group input,
+.form-group select,
+.job-desc {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: var(--slate-50);
+  border: 1.5px solid var(--slate-200);
+  border-radius: var(--radius-xl);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--slate-900);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.job-desc:focus {
+  background: var(--white);
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 4px var(--primary-glow);
+  transform: translateY(-2px);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.salary-box label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--slate-800);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.salary-inputs {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.salary-inputs span {
+  color: var(--slate-400);
+  font-weight: 900;
+}
+
+.job-desc {
+  height: 160px;
+  resize: none;
+}
+
+/* Upload Section */
+.upload-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--slate-800);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.upload-box {
+  background: var(--slate-50);
+  border: 2px dashed var(--slate-200);
+  padding: 3rem;
+  border-radius: var(--radius-2xl);
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+}
+
+.upload-box:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  transform: translateY(-4px);
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--primary);
+  color: var(--white);
+  padding: 0.875rem 1.75rem;
+  border-radius: var(--radius-full);
+  font-weight: 800;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s;
+  box-shadow: 0 8px 16px var(--primary-glow);
+}
+
+.upload-box:hover .upload-btn {
+  transform: scale(1.05);
+  box-shadow: 0 12px 24px var(--primary-glow);
+}
+
+.file-text {
+  display: block;
+  font-size: 0.9375rem;
+  color: var(--slate-600);
+  font-weight: 700;
+}
+
+.file-note {
+  font-size: 0.75rem;
+  color: var(--slate-400);
+  margin-top: 0.75rem;
+  font-weight: 600;
+}
+
+.post-job-btn {
+  width: 100%;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, var(--primary) 0%, #16564d 100%);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-xl);
+  font-size: 1.125rem;
+  font-weight: 950;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 15px 30px var(--primary-glow);
+  margin-top: 3rem;
+}
+
+.post-job-btn:hover {
+  transform: translateY(-4px);
+  filter: brightness(1.1);
+  box-shadow: 0 20px 40px var(--primary-glow);
+}
+
+/* Sidebar Widgets */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.post-card,
+.deadline-card {
+  background: var(--white);
+  padding: 2.5rem;
+  border-radius: 2rem;
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.post-card h4,
+.deadline-card h3 {
+  font-size: 1.375rem;
+  font-weight: 950;
+  color: var(--slate-950);
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.03em;
+}
+
+.post-card p {
+  font-size: 0.9375rem;
+  color: var(--slate-500);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.social-icons {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.post-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--slate-50);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--slate-600);
+  font-size: 1.125rem;
+  transition: all 0.3s;
+  border: 1px solid var(--slate-200);
+}
+
+.post-icon:hover {
+  background: var(--primary);
+  color: var(--white);
+  transform: translateY(-4px) rotate(8deg);
+  border-color: var(--primary);
+  box-shadow: 0 8px 16px var(--primary-glow);
+}
+
+.post-btn {
+  display: block;
+  text-align: center;
+  background: var(--slate-950);
+  color: var(--white);
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  font-weight: 900;
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: all 0.3s;
+}
+
+.post-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.desc-list {
+  list-style: none;
+}
+
+.desc-list li {
+  font-size: 0.9375rem;
+  color: var(--slate-600);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+}
+
+.desc-list li::before {
+  content: "\f058";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.deadline-card span {
+  display: block;
+  margin-top: 1.5rem;
+  font-weight: 900;
+  color: var(--primary);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Auth Popup */
+.popup {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-content {
+  background: var(--white);
+  padding: 4rem 3rem;
+  border-radius: 3rem;
+  max-width: 440px;
+  text-align: center;
+  box-shadow: 0 100px 200px rgba(0, 0, 0, 0.1);
+}
+
+.popup-icon {
+  width: 80px;
+  height: 80px;
+  background: var(--primary-light);
+  color: var(--primary);
+  border-radius: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.25rem;
+  margin: 0 auto 2rem;
+  box-shadow: 0 20px 40px var(--primary-glow);
+}
+
+.popup-content h3 {
+  font-size: 2rem;
+  font-weight: 950;
+  color: var(--slate-950);
+  margin-bottom: 1rem;
+  letter-spacing: -0.04em;
+}
+
+.popup-content p {
+  color: var(--slate-500);
+  font-size: 1.125rem;
+  line-height: 1.5;
+  margin-bottom: 2.5rem;
+}
+
+.popup-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.login-btn {
+  background: var(--primary);
+  color: var(--white);
+  padding: 1.25rem;
+  border-radius: var(--radius-xl);
+  font-weight: 900;
+  text-decoration: none;
+  transition: all 0.3s;
+  box-shadow: 0 15px 30px var(--primary-glow);
+}
+
+.login-btn:hover {
+  transform: translateY(-4px);
+  filter: brightness(1.1);
+  box-shadow: 0 20px 40px var(--primary-glow);
+}
+
+.close-btn {
+  background: var(--slate-100);
+  color: var(--slate-600);
+  padding: 1.25rem;
+  border-radius: var(--radius-xl);
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.close-btn:hover {
+  background: var(--slate-200);
+  color: var(--slate-900);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 4rem;
+    padding: 4rem 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header h1 {
+    font-size: 2.5rem;
+  }
+
+  .job-form-card {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

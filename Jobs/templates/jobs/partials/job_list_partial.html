@@ -1,0 +1,59 @@
+{% load static %}
+
+{% for job in jobs %}
+<div class="job-card">
+  <div class="job-left">
+    {% if job.logo %}
+    <img src="{{ job.logo.url }}" class="job-icon">
+    {% else %}
+    <img src="{% static 'images/logo1.png' %}" class="job-icon">
+    {% endif %}
+
+    <div class="job-details">
+      <a href="{% url 'job_details' job.id %}" class="job-title-link">
+        {{ job.title }}
+      </a>
+
+      <p class="company">
+        <i class="fa-solid fa-building"></i>
+        {{ job.company }}
+      </p>
+
+      <div class="meta">
+        <div class="meta-item">
+          <i class="fa-solid fa-location-dot"></i>
+          {{ job.location }}
+        </div>
+        <div class="meta-item">
+          <i class="fa-solid fa-clock"></i>
+          {{ job.job_type }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="job-right">
+    <span class="posted">
+      Posted {{ job.created_at|timesince }} ago
+    </span>
+
+    <div class="job-card-actions">
+      <a href="{% url 'job_apply' job.id %}" class="apply-btn">
+        Apply Now
+      </a>
+
+      {% if request.user.role == 'student' %}
+      <form action="{% url 'save_job' job.id %}" method="POST" class="save-job-form">
+        {% csrf_token %}
+        <button type="submit" class="btn-save-job {% if job.id in saved_job_ids %}active{% endif %}"
+          title="{% if job.id in saved_job_ids %}Unsave Job{% else %}Save Job{% endif %}">
+          <i class="{% if job.id in saved_job_ids %}fa-solid{% else %}fa-regular{% endif %} fa-bookmark"></i>
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% empty %}
+<p>No jobs available.</p>
+{% endfor %}

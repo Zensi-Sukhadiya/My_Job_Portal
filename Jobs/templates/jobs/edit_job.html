@@ -1,0 +1,171 @@
+﻿{% extends "base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Edit Job{% endblock %}
+{% block page_title %}Modify Job Posting{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/job_post.css' %}">
+{% endblock %}
+
+{% block content %}
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="post-job-grid">
+        <!-- Main Form Section -->
+        <div class="post-main-area">
+            <section class="post-main-card">
+                <h3 class="form-section-title">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    Edit Job Details
+                </h3>
+
+                <div class="field-wrapper">
+                    <label class="field-label">Job Title</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-briefcase"></i>
+                        <input type="text" name="title" required value="{{ job.title }}"
+                            placeholder="e.g. Senior Software Engineer" class="form-control-l">
+                    </div>
+                </div>
+
+                <div class="form-row-grid-2">
+                    <div class="field-wrapper mb-0">
+                        <label class="field-label">Company Name</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-building"></i>
+                            <input type="text" name="company" required value="{{ job.company }}" placeholder="Acme Corp"
+                                class="form-control-l">
+                        </div>
+                    </div>
+                    <div class="field-wrapper mb-0">
+                        <label class="field-label">Location</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <input type="text" name="location" required value="{{ job.location }}"
+                                placeholder="Remote / New York" class="form-control-l">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row-grid-2">
+                    <div class="field-wrapper mb-0">
+                        <label class="field-label">Category</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-layer-group"></i>
+                            <select name="category" required class="form-control-l">
+                                <option value="" disabled>Select Category</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}" {% if job.category.id == cat.id %}selected{% endif %}>
+                                    {{ cat.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field-wrapper mb-0">
+                        <label class="field-label">Job Type</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-clock"></i>
+                            <select name="job_type" required class="form-control-l">
+                                {% for code, name in form.fields.job_type.choices %}
+                                <option value="{{ code }}" {% if job.job_type == code %}selected{% endif %}>
+                                    {{ name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row-grid-2">
+                    <div class="field-wrapper mb-0">
+                        <label class="field-label">Salary Range</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-indian-rupee-sign"></i>
+                            <input type="text" name="salary" required value="{{ job.salary }}"
+                                placeholder="e.g. 10 LPA - 15 LPA" class="form-control-l">
+                        </div>
+                    </div>
+                    <div class="field-wrapper mb-0">
+                        <label class="field-label">Application Deadline</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-calendar-day"></i>
+                            <input type="date" name="deadline" required value="{{ job.deadline|date:'Y-m-d' }}"
+                                class="form-control-l">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field-wrapper">
+                    <div class="flex-between mb-8">
+                        <label class="field-label mb-0">Job Description</label>
+                        <button type="button" id="improve-ai-btn" class="btn-icon bg-primary-light"
+                            style="width: auto; padding: 4px 12px; font-size: 11px; height: 28px;">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-4"></i> Improve with AI
+                        </button>
+                    </div>
+                    <textarea name="description" id="job-description" required rows="8"
+                        placeholder="Describe the role, responsibilities, and key requirements..."
+                        class="form-control-l textarea-job-desc">{{ job.description }}</textarea>
+                </div>
+
+                <div class="footer-actions">
+                    <a href="{% url 'manage_jobs' %}" class="btn-cancel-post">Cancel Editing</a>
+                    <button type="submit" class="btn-publish-job">
+                        Update Job Posting
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- Widgets Section -->
+        <div class="post-widgets">
+            <section class="widget-card">
+                <h4 class="widget-title">Market Insights</h4>
+                <div class="widget-content-v">
+                    {% for insight in market_insights %}
+                    <div class="flex-between-align-center">
+                        <div class="flex-align-center-gap-12">
+                            <div class="market-icon-box">
+                                <i class="{{ insight.icon_class|default:'fa-solid fa-briefcase' }}"></i>
+                            </div>
+                            <div class="market-stat-info">
+                                <p>{{ insight.name }}</p>
+                                <span>{{ insight.job_count }} new jobs</span>
+                            </div>
+                        </div>
+                        <span class="market-stat-badge">{{ insight.trend }}% ↑</span>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted-sm text-center">No market insights available yet.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="widget-card">
+                <h4 class="widget-title">Company Media</h4>
+                <div class="upload-area" onclick="document.getElementById('id_logo').click();">
+                    <div class="upload-icon-large">
+                        {% if job.logo %}
+                        <img src="{{ job.logo.url }}" alt="Logo"
+                            style="width: 48px; height: 48px; border-radius: 8px; object-fit: cover;">
+                        {% else %}
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        {% endif %}
+                    </div>
+                    <p class="upload-text-main" id="upload-filename">{% if job.logo %}Change Logo{% else %}Upload
+                        Company Logo{% endif %}</p>
+                    <p class="upload-text-sub">PNG, JPG up to 2MB</p>
+                    <input type="file" name="logo" id="id_logo" style="display: none;" onchange="updateFileName(this)">
+                    <button type="button" class="upload-btn-p">Select File</button>
+                </div>
+            </section>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'js/post_job.js' %}"></script>
+{% endblock %}

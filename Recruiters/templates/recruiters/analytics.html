@@ -1,0 +1,108 @@
+{% extends "base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Recruiter Analytics{% endblock %}
+{% block page_title %}Recruitment Performance & Insights{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-eye"></i></div>
+        <h2>4.2k</h2>
+        <p>Total Job Views (This Month)</p>
+        <span class="badge badge-success" style="font-size: 11px;">+12% ↑</span>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-green"><i class="fa-solid fa-file-invoice"></i></div>
+        <h2>{{ conversion_rate }}%</h2>
+        <p>Avg. Conversion Rate</p>
+        <span class="badge badge-success" style="font-size: 11px;">+2.4% ↑</span>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-orange"><i class="fa-solid fa-user-slash"></i></div>
+        <h2>{{ drop_off_rate }}%</h2>
+        <p>Candidate Drop-off</p>
+        <span class="badge badge-error" style="font-size: 11px;">-1.5% ↓</span>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-clock"></i></div>
+        <h2>14d</h2>
+        <p>Avg. Time to Hire</p>
+        <span class="badge badge-warning" style="font-size: 11px;">Stable</span>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="card-title">Job Performance Over Time</h4>
+            <div class="flex-align-center">
+                <span class="badge badge-success">Views vs Applications</span>
+            </div>
+        </div>
+        <div class="chart-container-wrapper">
+            <canvas id="performanceChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <h4 class="card-title mb-20">Performance by Role</h4>
+        <div class="flex-column">
+            {% for job in views_per_job %}
+            <div class="action-card-link" style="padding: 16px;">
+                <div class="flex-between w-100">
+                    <div>
+                        <p class="fw-700 mb-4">{{ job.title }}</p>
+                        <span class="text-muted-sm">{{ job.views }} views • {{ job.apps }} apps</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="fw-800 text-primary">10%</span>
+                        <p class="text-muted-sm" style="font-size: 10px;">Conv.</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <a href="{% url 'manage_jobs' %}" class="btn-post-job mt-32"
+            style="display: block; text-align: center; background: var(--bg-main);">
+            View Job Details
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [{% for label in monthly_stats.labels %}"{{ label }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Views',
+            data: {{ monthly_stats.views | safe }},
+        borderColor: '#1e6f63',
+        backgroundColor: 'rgba(30, 111, 99, 0.1)',
+        fill: true,
+        tension: 0.4
+            }, {
+            label: 'Applications',
+            data: {{ monthly_stats.apps | safe }},
+        borderColor: '#6366f1',
+        backgroundColor: 'transparent',
+        borderDash: [5, 5],
+        tension: 0.4
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'top' }
+        },
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+    });
+</script>
+{% endblock %}

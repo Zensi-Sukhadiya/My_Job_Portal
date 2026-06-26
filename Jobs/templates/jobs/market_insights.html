@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Market Insights | JobPortal{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/market_insights.css' %}" />
+{% endblock %}
+
+{% block content %}
+<main class="insights-page">
+    <div class="container border-0">
+        <header class="insights-header">
+            <p style="color: #1e6f63; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.1em;">
+                Live Market Trends
+            </p>
+            <h1>Hiring Market Insights</h1>
+            <p>We analyze thousands of job listings everyday to bring you the most accurate trends in the recruitment market.</p>
+        </header>
+
+        <div class="stats-overview">
+            <div class="stat-card">
+                <h2>{{ total_listings }}</h2>
+                <p>Active Vacancies</p>
+            </div>
+            <div class="stat-card">
+                <h2>14.2%</h2>
+                <p>MoM Market Growth</p>
+            </div>
+            <div class="stat-card">
+                <h2>Remote</h2>
+                <p>Top Work Mode</p>
+            </div>
+            <div class="stat-card">
+                <h2>Software</h2>
+                <p>Highest Demand</p>
+            </div>
+        </div>
+
+        <div class="insights-grid">
+            {% for item in insights %}
+            <div class="insight-card">
+                <div class="category-icon">
+                    <i class="{{ item.icon }}"></i>
+                </div>
+                <h3 class="category-name">{{ item.name }}</h3>
+                <div class="growth-info">
+                    <div class="growth-percentage">
+                        <i class="fa-solid fa-arrow-trend-up"></i> {{ item.growth }}%
+                    </div>
+                    <span class="demand-label">{{ item.demand }} Demand</span>
+                </div>
+
+                <div class="insight-footer">
+                    <div class="listing-count">
+                        {{ item.count }} <span>Active Jobs</span>
+                    </div>
+                    <a href="{% url 'job_listings' %}?category={{ item.name|slugify }}"
+                        style="color: #1e6f63; text-decoration: none; font-weight: 700; font-size: 14px;">View Jobs →
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="cta-section">
+            <h2>Are you a recruiter looking for talent?</h2>
+            <p>Our platform helps over 5,000 companies find the right professional every single day. Post your job now
+                and start getting quality applications.</p>
+            <a href="{% url 'recruiter_login' %}" class="btn-recruiter">Get Started for Free</a>
+        </div>
+    </div>
+</main>
+{% endblock %}

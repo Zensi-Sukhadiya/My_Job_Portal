@@ -1,0 +1,139 @@
+{% extends "base_dashboard.html" %}
+{% load static %}
+
+{% block title %}My Applications | JobPortal{% endblock %}
+{% block page_title %}My Applications{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/my_applications.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="apps-container">
+    <!-- Filters & Search -->
+    <div class="filter-card">
+        <form method="GET" class="filter-grid">
+            <div class="search-input-group">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" name="q" class="form-control" placeholder="Search by job position..."
+                    value="{{ query }}">
+            </div>
+
+            <select name="status" class="form-control status-select" onchange="this.form.submit()">
+                <option value="">All Statuses</option>
+                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Applied / Pending</option>
+                <option value="viewed" {% if status_filter == 'viewed' %}selected{% endif %}>Viewed</option>
+                <option value="shortlisted" {% if status_filter == 'shortlisted' %}selected{% endif %}>Shortlisted
+                </option>
+                <option value="interview" {% if status_filter == 'interview' %}selected{% endif %}>Interview Scheduled
+                </option>
+                <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+                <option value="hired" {% if status_filter == 'hired' %}selected{% endif %}>Hired</option>
+            </select>
+
+            <button type="submit" class="btn btn-primary btn-filter">Filter</button>
+
+            {% if query or status_filter %}
+            <a href="{% url 'my_applications' %}" class="btn-reset" title="Reset Filters">
+                <i class="fa-solid fa-rotate-left"></i>
+            </a>
+            {% else %}
+            <div></div> <!-- Spacer -->
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Applications Table -->
+    <div class="apps-table-card">
+        <div class="table-responsive">
+            <table class="apps-table">
+                <thead>
+                    <tr>
+                        <th>Job Position</th>
+                        <th>Company</th>
+                        <th>Location</th>
+                        <th>Applied Date</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'job_details' app.job.id %}" class="job-link">{{ app.job.title }}</a>
+                        </td>
+                        <td>
+                            <div class="company-tag">{{ app.job.company }}</div>
+                        </td>
+                        <td>
+                            <div class="text-muted-sm"><i class="fa-solid fa-location-dot me-1"></i> {{ app.job.location }}</div>
+                        </td>
+                        <td class="text-muted">{{ app.applied_at|date:"M d, Y" }}</td>
+                        <td>
+                            {% if app.status == 'shortlisted' %}
+                            <span class="badge-modern badge-success-lite"><i class="fa-solid fa-circle-check"></i>
+                                Shortlisted</span>
+                            {% elif app.status == 'interview' %}
+                            <div>
+                                <span class="badge-modern badge-info-lite"><i class="fa-solid fa-calendar-days"></i>
+                                    Interview Scheduled</span>
+                                {% if app.interview %}
+                                <div
+                                    style="margin-top: 8px; font-size: 11px; color: var(--text-muted); line-height: 1.5;">
+                                    <div><i class="fa-solid fa-clock opacity-50 me-1"></i> {{
+                                        app.interview.scheduled_at|date:"M j" }} at {{
+                                        app.interview.scheduled_at|time:"g:i A" }}</div>
+                                    <div><i class="fa-solid fa-video opacity-50 me-1"></i> {{
+                                        app.interview.get_format_display }}</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% elif app.status == 'rejected' %}
+                            <span class="badge-modern badge-error-lite"><i class="fa-solid fa-circle-xmark"></i>
+                                Rejected</span>
+                            {% elif app.status == 'hired' %}
+                            <span class="badge-modern" style="background: var(--primary); color: white;">HIRED 🎉</span>
+                            {% elif app.status == 'viewed' %}
+                            <span class="badge-modern badge-blue-lite"><i class="fa-solid fa-eye"></i> Viewed</span>
+                            {% else %}
+                            <span class="badge-modern badge-warning-lite"><i class="fa-solid fa-clock"></i>
+                                Applied</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="action-group">
+                                {% if app.status == 'pending' %}
+                                <a href="{% url 'withdraw_application' app.id %}" class="btn-action-icon btn-withdraw"
+                                    title="Withdraw & Re-apply"
+                                    onclick="return confirm('Withdraw this application? You can re-apply again with corrected information after withdrawing.')">
+                                    <i class="fa-solid fa-rotate-left"></i>
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'delete_application' app.id %}" class="btn-action-icon btn-delete"
+                                    title="Delete from History"
+                                    onclick="return confirm('Remove this application from your history?')">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center p-60">
+                            <div class="mb-20 opacity-20"><i class="fa-solid fa-paper-plane fa-4x"></i></div>
+                            <h4 class="fw-700 text-dark">No applications found</h4>
+                            <p class="text-muted">Explore jobs and start your career journey today!</p>
+                            <a href="{% url 'job_listings' %}" class="btn btn-primary mt-20">Browse All Jobs</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,242 @@
+{% extends "platform_admin/base_admin.html" %}
+{% load static %}
+
+{% block title %}Platform Analytics | Admin{% endblock %}
+
+{% block admin_content %}
+<style>
+    .analytics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.75rem;
+        border: 1px solid #e2e8f0;
+        text-align: center;
+    }
+
+    .stat-card .value {
+        font-size: 2rem;
+        font-weight: 900;
+        color: #0f172a;
+    }
+
+    .stat-card .label {
+        font-size: 0.8rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 0.5rem;
+        font-weight: 700;
+    }
+
+    .chart-container {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 2rem;
+    }
+
+    .chart-container h3 {
+        font-weight: 800;
+        margin-bottom: 1.25rem;
+        font-size: 1.1rem;
+    }
+
+    .charts-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 2rem;
+    }
+
+    .table-card h3 {
+        font-weight: 800;
+        margin-bottom: 1.25rem;
+        font-size: 1.1rem;
+    }
+
+    .table-card table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-card th,
+    .table-card td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.875rem;
+    }
+
+    .table-card th {
+        color: #64748b;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+    }
+
+    .badge-sm {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+        .charts-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<h1 style="font-weight: 900; font-size: 1.75rem; margin-bottom: 2rem;">📊 Platform Analytics</h1>
+
+<!-- Summary cards -->
+<div class="analytics-grid">
+    <div class="stat-card">
+        <div class="value">{{ total_users }}</div>
+        <div class="label">Total Users</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ total_students }}</div>
+        <div class="label">Students</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ total_recruiters }}</div>
+        <div class="label">Recruiters</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ total_jobs }}</div>
+        <div class="label">Jobs Posted</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ total_applications }}</div>
+        <div class="label">Applications</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ total_reviews }}</div>
+        <div class="label">Company Reviews</div>
+    </div>
+    <div class="stat-card">
+        <div class="value">{{ avg_platform_rating }}★</div>
+        <div class="label">Avg Company Rating</div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="charts-row">
+    <div class="chart-container">
+        <h3>📈 Monthly User Signups</h3>
+        <canvas id="usersChart" height="250"></canvas>
+    </div>
+    <div class="chart-container">
+        <h3>💼 Monthly Job Postings</h3>
+        <canvas id="jobsChart" height="250"></canvas>
+    </div>
+</div>
+
+<div class="chart-container">
+    <h3>📝 Monthly Applications</h3>
+    <canvas id="appsChart" height="200"></canvas>
+</div>
+
+<!-- Top Companies & Status Breakdown -->
+<div class="charts-row">
+    <div class="table-card">
+        <h3>🏢 Top Companies by Applications</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Applications</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in top_companies %}
+                <tr>
+                    <td>{{ c.company }}</td>
+                    <td><strong>{{ c.apps }}</strong></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2" style="color:#94a3b8;">No data yet</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="table-card">
+        <h3>📋 Application Status Breakdown</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in status_counts %}
+                <tr>
+                    <td><span class="badge-sm" style="background: #f0fdf4; color:#166534;">{{ s.status|title }}</span>
+                    </td>
+                    <td><strong>{{ s.count }}</strong></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2" style="color:#94a3b8;">No data yet</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+    function buildChart(canvasId, chartData, color, label) {
+        const parsed = JSON.parse(chartData);
+        new Chart(document.getElementById(canvasId), {
+            type: 'line',
+            data: {
+                labels: parsed.labels,
+                datasets: [{
+                    label: label,
+                    data: parsed.data,
+                    borderColor: color,
+                    backgroundColor: color + '22',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: color,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0 } }
+                }
+            }
+        });
+    }
+    buildChart('usersChart', '{{ users_chart|escapejs }}', '#6366f1', 'Users');
+    buildChart('jobsChart', '{{ jobs_chart|escapejs }}', '#22c55e', 'Jobs');
+    buildChart('appsChart', '{{ apps_chart|escapejs }}', '#f59e0b', 'Applications');
+</script>
+{% endblock %}

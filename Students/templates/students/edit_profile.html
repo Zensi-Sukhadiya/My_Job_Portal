@@ -1,0 +1,643 @@
+{% extends "base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Professional Profile | JobPortal{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block extra_css %}
+<!-- Profile specifically styled via student_dashboard.css -->
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <!-- Header Profile Card -->
+        <div class="profile-header-card">
+            <div class="profile-avatar-box">
+                {% if request.user.profile_picture %}
+                <img src="{{ request.user.profile_picture.url }}" class="profile-avatar-img" id="avatarPreview">
+                {% else %}
+                <div class="profile-avatar-img d-flex align-items-center justify-content-center bg-light"
+                    id="avatarPreview">
+                    <i class="fa-solid fa-user fa-4x text-muted"></i>
+                </div>
+                {% endif %}
+                <label for="id_profile_picture" class="edit-avatar-btn">
+                    <i class="fa-solid fa-camera"></i>
+                </label>
+            </div>
+            <div class="profile-info">
+                <h2>{{ request.user.name|default:request.user.username }}</h2>
+                <div class="profile-headline">
+                    {{ student.headline|default:"Professional Headline (e.g. Django Developer)" }}
+                </div>
+                <div class="profile-meta-tags mt-10">
+                    <span class="flex-align-center"><i class="fa-solid fa-location-dot text-primary"></i>
+                        {{ student.location|default:"Location not set" }}
+                    </span>
+                    <span class="flex-align-center"><i class="fa-solid fa-envelope text-primary"></i>
+                        {{ request.user.email }}
+                    </span>
+                    <span class="flex-align-center"><i class="fa-solid fa-phone text-primary"></i>
+                        {{ student.phone|default:"Phone not set" }}
+                    </span>
+                </div>
+            </div>
+            <div class="ms-auto text-end" style="min-width: 250px;">
+                <div class="flex-between mb-10">
+                    <span class="fw-700 text-dark">Profile Strength</span>
+                    <span class="fw-800 text-primary">{{ request.user.profile_completion }}%</span>
+                </div>
+                <div class="progress-sm">
+                    <div class="progress-bar"
+                        style="--progress: {{ request.user.profile_completion }}%; width: var(--progress);"></div>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Basic Information -->
+            <section class="section-card">
+                <div class="section-header-premium">
+                    <h3 class="section-title-premium"><i class="fa-solid fa-user"></i> Basic Information</h3>
+                    <button type="submit" class="btn btn-primary px-32 py-10 radius-50 fw-700">Save Changes</button>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-24">
+                        <label class="form-label fw-700 text-dark mb-10">Professional Headline</label>
+                        {{ form.headline }}
+                    </div>
+                    <div class="col-md-6 mb-24">
+                        <label class="form-label fw-700 text-dark mb-10">Location</label>
+                        {{ form.location }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-24">
+                        <label class="form-label fw-700 text-dark mb-10">Phone Number</label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="col-md-6 mb-24">
+                        <label class="form-label fw-700 text-dark mb-10">College / University</label>
+                        {{ form.college }}
+                    </div>
+                </div>
+                <div class="mb-24">
+                    <label class="form-label fw-700 text-dark mb-10">Professional Bio</label>
+                    {{ form.bio }}
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-24">
+                        <label class="form-label fw-700 text-dark mb-10"><i
+                                class="fa-brands fa-github text-primary"></i> GitHub</label>
+                        {{ form.github }}
+                    </div>
+                    <div class="col-md-4 mb-24">
+                        <label class="form-label fw-700 text-dark mb-10"><i
+                                class="fa-brands fa-linkedin text-primary"></i> LinkedIn</label>
+                        {{ form.linkedin }}
+                    </div>
+                    <div class="col-md-4 mb-24">
+                        <label class="form-label fw-700 text-dark mb-10"><i class="fa-solid fa-globe text-primary"></i>
+                            Portfolio</label>
+                        {{ form.portfolio }}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Resume Management -->
+            <section class="section-card">
+                <div class="section-header-premium">
+                    <h3 class="section-title-premium"><i class="fa-solid fa-file-pdf"></i> Resume Management</h3>
+                </div>
+                <div class="flex-align-center gap-20 bg-light-hover p-20 radius-xl border">
+                    <div class="flex-1">
+                        <label class="form-label fw-700 text-dark mb-10">Upload PDF Resume</label>
+                        {{ form.resume }}
+                        <div class="mt-10">
+                            <small class="text-muted-sm"><i class="fa-solid fa-clock-rotate-left"></i>
+                                Last updated: {{ student.resume_updated_at|date:"M d, Y" }}
+                            </small>
+                        </div>
+                    </div>
+                    <div class="flex-align-center gap-10">
+                        {% if student.resume %}
+                        <a href="{{ student.resume.url }}" class="btn btn-outline-primary px-20 py-10 radius-50 fw-700"
+                            download
+                            style="border: 1.5px solid var(--primary); color: var(--primary); text-decoration: none;">
+                            <i class="fa-solid fa-file-arrow-down"></i> Uploaded Resume
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'download_resume' %}" class="btn btn-primary px-20 py-10 radius-50 fw-700"
+                            target="_blank" style="text-decoration: none;">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Portfolio PDF
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </form>
+
+        <!-- Education -->
+        <section class="section-card">
+            <div class="section-header-premium">
+                <h3 class="section-title-premium"><i class="fa-solid fa-graduation-cap"></i> Education</h3>
+                <button class="btn btn-primary btn-sm px-20 py-8 radius-50 fw-700" onclick="openModal('eduModal')">
+                    <i class="fa-solid fa-plus"></i> Add Education
+                </button>
+            </div>
+            <div class="row">
+                {% for edu in education_list %}
+                <div class="col-md-6">
+                    <div class="item-card bg-light-hover">
+                        <div class="item-actions">
+                            <a href="{% url 'delete_record' 'education' edu.id %}" class="action-btn btn-del"
+                                onclick="return confirm('Delete this education record?')">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </div>
+                        <h4 class="fw-800 text-dark mb-4" style="font-size: 16px;">{{ edu.degree }}</h4>
+                        <div class="text-primary fw-700 mb-6" style="font-size: 14px;">{{ edu.institution }}</div>
+                        <div class="text-muted-sm"><i class="fa-solid fa-calendar-days"></i> {{ edu.start_date|date:"MY"
+                            }} -
+                            {% if edu.is_currently_studying %}
+                            Present
+                            {% else %}
+                            {{ edu.end_date|date:"M Y" }}
+                            {% endif %}
+                        </div>
+                        {% if edu.description %}
+                        <p class="mt-10 text-muted-sm" style="line-height: 1.5;">{{ edu.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-40 bg-light rounded-16">
+                        <i class="fa-solid fa-graduation-cap fa-3x text-muted mb-16" style="opacity: 0.3;"></i>
+                        <p class="text-muted fw-600">No education records added yet.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Experience -->
+        <section class="section-card">
+            <div class="section-header-premium">
+                <h3 class="section-title-premium"><i class="fa-solid fa-briefcase"></i> Experience</h3>
+                <button class="btn btn-primary btn-sm px-20 py-8 radius-50 fw-700" onclick="openModal('expModal')">
+                    <i class="fa-solid fa-plus"></i> Add Experience
+                </button>
+            </div>
+            <div class="row">
+                {% for exp in experience_list %}
+                <div class="col-md-6">
+                    <div class="item-card bg-light-hover">
+                        <div class="item-actions">
+                            <a href="{% url 'delete_record' 'experience' exp.id %}" class="action-btn btn-del"
+                                onclick="return confirm('Delete this experience record?')">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </div>
+                        <h4 class="fw-800 text-dark mb-4" style="font-size: 16px;">{{ exp.role }}</h4>
+                        <div class="text-primary fw-700 mb-6" style="font-size: 14px;">{{ exp.company }}</div>
+                        <div class="text-muted-sm mb-6"><i class="fa-solid fa-location-dot"></i> {{ exp.location }}
+                        </div>
+                        <div class="text-muted-sm"><i class="fa-solid fa-calendar-days"></i>
+                            {{ exp.start_date|date:"MY" }} - {% if exp.is_current %}Present{% else %}{{
+                            exp.end_date|date:"M Y" }}{% endif %}
+                        </div>
+                        {% if exp.description %}
+                        <p class="mt-10 text-muted-sm" style="line-height: 1.5;">{{ exp.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-40 bg-light rounded-16">
+                        <i class="fa-solid fa-briefcase fa-3x text-muted mb-16" style="opacity: 0.3;"></i>
+                        <p class="text-muted fw-600">No experience records added yet.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Experience Section (Already present, adding Projects/Certifications after it) -->
+
+        <!-- Projects -->
+        <section class="section-card">
+            <div class="section-header-premium">
+                <h3 class="section-title-premium"><i class="fa-solid fa-code-branch"></i> Key Projects</h3>
+                <button type="button" class="btn btn-primary btn-sm px-20 py-8 radius-50 fw-700"
+                    onclick="openModal('projectModal')">
+                    <i class="fa-solid fa-plus"></i> Add Project
+                </button>
+            </div>
+            <div class="row">
+                {% for project in projects_list %}
+                <div class="col-md-6">
+                    <div class="item-card bg-light-hover">
+                        <div class="item-actions">
+                            <a href="{% url 'delete_record' 'project' project.id %}" class="action-btn btn-del"
+                                onclick="return confirm('Delete this project record?')">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </div>
+                        <h4 class="fw-800 text-dark mb-4" style="font-size: 16px;">{{ project.title }}</h4>
+                        {% if project.link %}
+                        <a href="{{ project.link }}" target="_blank" class="text-primary fw-700 mb-6 d-block"
+                            style="font-size: 14px; text-decoration: none;">
+                            <i class="fa-solid fa-link"></i> Project Link
+                        </a>
+                        {% endif %}
+                        <div class="text-muted-sm"><i class="fa-solid fa-calendar-days"></i> {{
+                            project.start_date|date:"M Y"|default:"N/A" }} - {{ project.end_date|date:"M
+                            Y"|default:"N/A" }}</div>
+                        <p class="mt-10 text-muted-sm" style="line-height: 1.5;">{{ project.description }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-40 bg-light rounded-16">
+                        <i class="fa-solid fa-code-branch fa-3x text-muted mb-16" style="opacity: 0.3;"></i>
+                        <p class="text-muted fw-600">No projects added yet.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Certifications -->
+        <section class="section-card">
+            <div class="section-header-premium">
+                <h3 class="section-title-premium"><i class="fa-solid fa-certificate"></i> Certifications</h3>
+                <button type="button" class="btn btn-primary btn-sm px-20 py-8 radius-50 fw-700"
+                    onclick="openModal('certModal')">
+                    <i class="fa-solid fa-plus"></i> Add Certification
+                </button>
+            </div>
+            <div class="row">
+                {% for cert in certifications_list %}
+                <div class="col-md-6">
+                    <div class="item-card bg-light-hover">
+                        <div class="item-actions">
+                            <a href="{% url 'delete_record' 'certification' cert.id %}" class="action-btn btn-del"
+                                onclick="return confirm('Delete this certification record?')">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </div>
+                        <h4 class="fw-800 text-dark mb-4" style="font-size: 16px;">{{ cert.name }}</h4>
+                        <div class="text-primary fw-700 mb-6" style="font-size: 14px;">{{ cert.issuing_organization }}
+                        </div>
+                        <div class="text-muted-sm mb-6"><i class="fa-solid fa-calendar-check"></i> Issued: {{
+                            cert.issue_date|date:"M Y" }}
+                        </div>
+                        {% if cert.credential_url %}
+                        <a href="{{ cert.credential_url }}" target="_blank"
+                            class="btn btn-sm btn-outline-primary px-16 py-4 radius-50 fw-700"
+                            style="font-size: 12px; text-decoration: none;">
+                            Verify Credential
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-40 bg-light rounded-16">
+                        <i class="fa-solid fa-certificate fa-3x text-muted mb-16" style="opacity: 0.3;"></i>
+                        <p class="text-muted fw-600">No certifications added yet.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Languages -->
+        <section class="section-card">
+            <div class="section-header-premium">
+                <h3 class="section-title-premium"><i class="fa-solid fa-language"></i> Languages</h3>
+                <button type="button" class="btn btn-primary btn-sm px-20 py-8 radius-50 fw-700"
+                    onclick="openModal('langModal')">
+                    <i class="fa-solid fa-plus"></i> Add Language
+                </button>
+            </div>
+            <div class="row">
+                {% for lang in languages_list %}
+                <div class="col-md-4">
+                    <div class="item-card bg-light-hover">
+                        <div class="item-actions">
+                            <a href="{% url 'delete_record' 'language' lang.id %}" class="action-btn btn-del"
+                                onclick="return confirm('Delete this language record?')">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </div>
+                        <h4 class="fw-800 text-dark mb-4" style="font-size: 15px;">{{ lang.name }}</h4>
+                        <span class="badge bg-primary-light text-primary fw-700 radius-50 px-12 py-4"
+                            style="font-size: 11px;">
+                            {{ lang.get_proficiency_display }}
+                        </span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-32 bg-light rounded-16">
+                        <p class="text-muted fw-600 mb-0">What languages do you speak? Add them here...</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <!-- Skills -->
+            <section class="section-card">
+                <div class="section-header-premium">
+                    <h3 class="section-title-premium"><i class="fa-solid fa-bolt"></i> Skills & Core Competencies</h3>
+                    <form method="POST" action="{% url 'add_skill' %}" class="flex-align-center gap-10">
+                        {% csrf_token %}
+                        <input type="text" name="skill_name" class="form-control form-control-sm px-16 py-8 radius-50"
+                            placeholder="Add a skill..." required style="width: 250px;">
+                        <button type="submit" class="btn btn-primary btn-sm px-20 py-8 radius-50 fw-700">Add
+                            Skill</button>
+                    </form>
+                </div>
+                <div class="skills-container">
+                    {% for skill in skills_list %}
+                    <div
+                        class="skill-tag px-16 py-8 radius-50 shadow-sm border bg-white transition-all hover-translate-y-2">
+                        <span class="fw-600">{{ skill.name }}</span>
+                        <a href="{% url 'delete_record' 'skill' skill.id %}"
+                            class="text-danger-sm ms-8 hover:text-danger"
+                            style="color: #ef4444; text-decoration: none;">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-20 bg-light rounded-16 w-100">
+                        <p class="text-muted fw-600 mb-0">List your key professional skills to stand out...</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+    </div>
+</div>
+
+<!-- Project Modal -->
+<div id="projectModal" class="dashboard-modal"
+    style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div class="modal-content bg-white p-32 radius-2xl shadow-premium"
+        style="width: 100%; max-width: 550px; position: relative;">
+        <div class="modal-header-premium border-bottom-light mb-24 pb-16 flex-between">
+            <h3 class="fw-800 text-dark mb-0" style="font-size: 20px;">Add New Project</h3>
+            <span class="close-modal text-muted cursor-pointer" onclick="closeModal('projectModal')"
+                style="font-size: 24px;">&times;</span>
+        </div>
+        <form method="POST" action="{% url 'add_project' %}">
+            {% csrf_token %}
+            <div class="mb-20">
+                <label class="form-label fw-700 text-dark mb-8">Project Title</label>
+                <input type="text" name="title" class="form-control" placeholder="e.g. E-commerce Platform" required>
+            </div>
+            <div class="mb-20">
+                <label class="form-label fw-700 text-dark mb-8">Project Link (Optional)</label>
+                <input type="url" name="link" class="form-control" placeholder="https://github.com/...">
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <label class="form-label fw-700 text-dark mb-8">Start Date</label>
+                    <input type="date" name="start_date" class="form-control">
+                </div>
+                <div class="col-6">
+                    <label class="form-label fw-700 text-dark mb-8">End Date</label>
+                    <input type="date" name="end_date" class="form-control">
+                </div>
+            </div>
+            <div class="mt-20">
+                <label class="form-label fw-700 text-dark mb-8">Description</label>
+                <textarea name="description" class="form-control" rows="4"
+                    placeholder="Briefly describe what you built..." required></textarea>
+            </div>
+            <div class="mt-32">
+                <button type="submit" class="btn btn-primary w-100 py-12 radius-12 fw-800 shadow-md">Add
+                    Project</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Certification Modal -->
+<div id="certModal" class="dashboard-modal"
+    style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div class="modal-content bg-white p-32 radius-2xl shadow-premium"
+        style="width: 100%; max-width: 550px; position: relative;">
+        <div class="modal-header-premium border-bottom-light mb-24 pb-16 flex-between">
+            <h3 class="fw-800 text-dark mb-0" style="font-size: 20px;">Add Certification</h3>
+            <span class="close-modal text-muted cursor-pointer" onclick="closeModal('certModal')"
+                style="font-size: 24px;">&times;</span>
+        </div>
+        <form method="POST" action="{% url 'add_certification' %}">
+            {% csrf_token %}
+            <div class="mb-20">
+                <label class="form-label fw-700 text-dark mb-8">Certification Name</label>
+                <input type="text" name="name" class="form-control" placeholder="e.g. AWS Certified Solutions Architect"
+                    required>
+            </div>
+            <div class="mb-20">
+                <label class="form-label fw-700 text-dark mb-8">Issuing Organization</label>
+                <input type="text" name="issuing_organization" class="form-control"
+                    placeholder="e.g. Amazon Web Services" required>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <label class="form-label fw-700 text-dark mb-8">Issue Date</label>
+                    <input type="date" name="issue_date" class="form-control" required>
+                </div>
+                <div class="col-6">
+                    <label class="form-label fw-700 text-dark mb-8">Expiration Date</label>
+                    <input type="date" name="expiration_date" class="form-control">
+                </div>
+            </div>
+            <div class="mt-20">
+                <label class="form-label fw-700 text-dark mb-8">Credential Link (Optional)</label>
+                <input type="url" name="credential_url" class="form-control" placeholder="https://...">
+            </div>
+            <div class="mt-32">
+                <button type="submit" class="btn btn-primary w-100 py-12 radius-12 fw-800 shadow-md">Add
+                    Certification</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Language Modal -->
+<div id="langModal" class="dashboard-modal"
+    style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div class="modal-content bg-white p-32 radius-2xl shadow-premium"
+        style="width: 100%; max-width: 450px; position: relative;">
+        <div class="modal-header-premium border-bottom-light mb-24 pb-16 flex-between">
+            <h3 class="fw-800 text-dark mb-0" style="font-size: 20px;">Add Language</h3>
+            <span class="close-modal text-muted cursor-pointer" onclick="closeModal('langModal')"
+                style="font-size: 24px;">&times;</span>
+        </div>
+        <form method="POST" action="{% url 'add_language' %}">
+            {% csrf_token %}
+            <div class="mb-20">
+                <label class="form-label fw-700 text-dark mb-8">Language</label>
+                <input type="text" name="name" class="form-control" placeholder="e.g. English" required>
+            </div>
+            <div class="mb-20">
+                <label class="form-label fw-700 text-dark mb-8">Proficiency Level</label>
+                <select name="proficiency" class="form-control" required>
+                    <option value="elementary">Elementary</option>
+                    <option value="limited">Limited Working</option>
+                    <option value="professional" selected>Professional Working</option>
+                    <option value="full">Full Professional</option>
+                    <option value="native">Native / Bilingual</option>
+                </select>
+            </div>
+            <div class="mt-32">
+                <button type="submit" class="btn btn-primary w-100 py-12 radius-12 fw-800 shadow-md">Add
+                    Language</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- Education Modal -->
+<div id="eduModal" class="dashboard-modal"
+    style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div class="modal-content bg-white p-32 radius-2xl shadow-premium"
+        style="width: 100%; max-width: 500px; position: relative;">
+        <div class="modal-header-premium border-bottom-light mb-24 pb-16 flex-between">
+            <h3 class="fw-800 text-dark mb-0" style="font-size: 20px;">Add Education</h3>
+            <span class="close-modal text-muted cursor-pointer" onclick="closeModal('eduModal')"
+                style="font-size: 24px;">&times;</span>
+        </div>
+        <form method="POST" action="{% url 'add_education' %}">
+            {% csrf_token %}
+            <div class="mb-20">
+                <label class="form-label fw-700 text-dark mb-8">Institution</label>
+                <input type="text" name="institution" class="form-control" placeholder="e.g. Stanford University"
+                    required>
+            </div>
+            <div class="mb-20">
+                <label class="form-label fw-700 text-dark mb-8">Degree</label>
+                <input type="text" name="degree" class="form-control" placeholder="e.g. Bachelor of Science" required>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <label class="form-label fw-700 text-dark mb-8">Start Date</label>
+                    <input type="date" name="start_date" class="form-control" required>
+                </div>
+                <div class="col-6">
+                    <label class="form-label fw-700 text-dark mb-8">End Date</label>
+                    <input type="date" name="end_date" class="form-control">
+                </div>
+            </div>
+            <div class="mt-32">
+                <button type="submit" class="btn btn-primary w-100 py-12 radius-12 fw-800 shadow-md">Add Record</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Experience Modal -->
+<div id="expModal" class="dashboard-modal"
+    style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div class="modal-content bg-white p-32 radius-2xl shadow-premium"
+        style="width: 100%; max-width: 500px; position: relative;">
+        <div class="modal-header-premium border-bottom-light mb-24 pb-16 flex-between">
+            <h3 class="fw-800 text-dark mb-0" style="font-size: 20px;">Add Experience</h3>
+            <span class="close-modal text-muted cursor-pointer" onclick="closeModal('expModal')"
+                style="font-size: 24px;">&times;</span>
+        </div>
+        <form method="POST" action="{% url 'add_experience' %}">
+            {% csrf_token %}
+            <div class="mb-20">
+                <label class="form-label fw-700 text-dark mb-8">Role / Position</label>
+                <input type="text" name="role" class="form-control" placeholder="e.g. Senior Software Engineer"
+                    required>
+            </div>
+            <div class="mb-20">
+                <label class="form-label fw-700 text-dark mb-8">Company</label>
+                <input type="text" name="company" class="form-control" placeholder="e.g. Google" required>
+            </div>
+            <div class="mb-20">
+                <label class="form-label fw-700 text-dark mb-8">Location</label>
+                <input type="text" name="location" class="form-control" placeholder="e.g. Palo Alto, CA">
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <label class="form-label fw-700 text-dark mb-8">Start Date</label>
+                    <input type="date" name="start_date" class="form-control" required>
+                </div>
+                <div class="col-6">
+                    <label class="form-label fw-700 text-dark mb-8">End Date</label>
+                    <input type="date" name="end_date" class="form-control">
+                </div>
+            </div>
+            <div class="mt-12">
+                <label class="flex-align-center gap-10 cursor-pointer">
+                    <input type="checkbox" name="is_current" class="form-check-input">
+                    <span class="text-muted-sm fw-600">Currently working here</span>
+                </label>
+            </div>
+            <div class="mt-32">
+                <button type="submit" class="btn btn-primary w-100 py-12 radius-12 fw-800 shadow-md">Add Record</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    // Close on click outside
+    window.onclick = function (event) {
+        if (event.target.classList.contains('dashboard-modal')) {
+            event.target.style.display = "none";
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    // Avatar preview
+    document.getElementById('id_profile_picture')?.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const preview = document.getElementById('avatarPreview');
+                if (preview.tagName === 'IMG') {
+                    preview.src = event.target.result;
+                } else {
+                    // Replace fallback div with img
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.className = 'profile-avatar-img';
+                    img.id = 'avatarPreview';
+                    preview.parentNode.replaceChild(img, preview);
+                }
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+
+{% endblock %}

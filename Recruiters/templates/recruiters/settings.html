@@ -1,0 +1,525 @@
+{% extends "base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Recruiter Settings{% endblock %}
+{% block page_title %}Recruiter Control Center{% endblock %}
+
+{% block css %}
+<style>
+    .settings-container {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 32px;
+        align-items: start;
+    }
+
+    .settings-nav {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 12px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        position: sticky;
+        top: 100px;
+    }
+
+    .settings-nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+        cursor: pointer;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+    }
+
+    .settings-nav-item i {
+        font-size: 18px;
+        width: 24px;
+        text-align: center;
+    }
+
+    .settings-nav-item:hover {
+        background: var(--bg-main);
+        color: var(--primary);
+    }
+
+    .settings-nav-item.active {
+        background: var(--primary);
+        color: var(--white);
+    }
+
+    .settings-nav-item.active i {
+        color: var(--white);
+    }
+
+    .settings-content-area {
+        background: var(--white);
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+    }
+
+    .tab-content {
+        display: none;
+        padding: 32px;
+    }
+
+    .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .section-header {
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 4px;
+    }
+
+    .section-desc {
+        color: var(--text-muted);
+        font-size: 14px;
+    }
+
+    /* TOGGLE SWITCHES */
+    .setting-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0;
+    }
+
+    .setting-row:not(:last-child) {
+        border-bottom: 1px solid #f8fafc;
+    }
+
+    .setting-info h4 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 4px;
+    }
+
+    .setting-info p {
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 48px;
+        height: 24px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #cbd5e1;
+        transition: .4s;
+        border-radius: 24px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked+.slider {
+        background-color: var(--primary);
+    }
+
+    input:checked+.slider:before {
+        transform: translateX(24px);
+    }
+
+    .form-group-l {
+        margin-bottom: 20px;
+    }
+
+    .form-label-l {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: var(--text-dark);
+    }
+
+    .form-input-l {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        font-size: 15px;
+        transition: border-color 0.2s;
+    }
+
+    .form-input-l:focus {
+        border-color: var(--primary);
+        outline: none;
+    }
+
+    .btn-save-settings {
+        background: var(--primary);
+        color: var(--white);
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 16px;
+    }
+
+    .btn-save-settings:hover {
+        background: #155e54;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <!-- Sidebar Navigation -->
+    <nav class="settings-nav">
+        <button class="settings-nav-item active" data-tab="account">
+            <i class="fa-solid fa-user-shield"></i> Account & Security
+        </button>
+        <button class="settings-nav-item" data-tab="notifications">
+            <i class="fa-solid fa-bell"></i> Notifications
+        </button>
+        <button class="settings-nav-item" data-tab="job-defaults">
+            <i class="fa-solid fa-sliders"></i> Job Defaults
+        </button>
+        <button class="settings-nav-item" data-tab="privacy">
+            <i class="fa-solid fa-eye-slash"></i> Privacy
+        </button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="settings-content-area">
+
+        <!-- Account & Security Tab -->
+        <div class="tab-content active" id="account">
+            <div class="section-header">
+                <h3 class="section-title">Account Security</h3>
+                <p class="section-desc">Manage your account credentials and security preferences.</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="account">
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <h4>Two-Factor Authentication</h4>
+                        <p>Add an extra layer of security to your account.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="2fa_enabled" {% if request.user.two_factor_enabled %}checked{%
+                            endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="form-group-l mt-32">
+                    <h4 class="form-label-l">Email Address</h4>
+                    <input type="email" value="{{ request.user.email }}" disabled class="form-input-l"
+                        style="background: #f1f5f9;">
+                    <p class="text-muted-sm mt-8">Contact support to change your primary email.</p>
+                </div>
+
+                <div class="section-header mt-32">
+                    <h3 class="section-title">Change Password</h3>
+                </div>
+
+                <div class="form-group-l">
+                    <label class="form-label-l">Current Password</label>
+                    <input type="password" name="current_password" class="form-input-l" placeholder="••••••••">
+                </div>
+                <div class="form-group-l">
+                    <label class="form-label-l">New Password</label>
+                    <input type="password" name="new_password" class="form-input-l" placeholder="Min. 8 characters">
+                </div>
+
+                <button type="submit" class="btn-save-settings">Update Account Settings</button>
+            </form>
+        </div>
+
+        <!-- Notifications Tab -->
+        <div class="tab-content" id="notifications">
+            <div class="section-header">
+                <h3 class="section-title">Notification Settings</h3>
+                <p class="section-desc">Control which emails and alerts you receive.</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="notifications">
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <h4>Email Notifications</h4>
+                        <p>Master toggle for all email communications.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="email_notifications" {% if settings.email_notifications %}checked{%
+                            endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <h4>New Application Alerts</h4>
+                        <p>Receive an email every time a candidate applies.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="new_application_alert" {% if settings.new_application_alert
+                            %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <h4>Candidate Shortlist Alerts</h4>
+                        <p>Receive notifications when candidates are shortlisted by team members.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="shortlisted_candidate_alert" {% if
+                            settings.shortlisted_candidate_alert %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <h4>Payment & Invoices</h4>
+                        <p>Alerts regarding your subscription and billing.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="payment_invoice_alert" 
+                        {% if settings.payment_invoice_alert %}
+                            checked
+                        {% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <h4>Weekly Recruitment Report</h4>
+                        <p>Get a summary of your hiring activities every Monday.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="weekly_report_email" 
+                        {% if settings.weekly_report_email %}
+                            checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-save-settings">Save Notification Preferences</button>
+            </form>
+        </div>
+
+        <!-- Job Defaults Tab -->
+        <div class="tab-content" id="job-defaults">
+            <div class="section-header">
+                <h3 class="section-title">Job Posting Defaults</h3>
+                <p class="section-desc">Speed up your recruitment by pre-filling common job details.</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="job_defaults">
+
+                <div class="form-group-l">
+                    <label class="form-label-l">Default Job Expiry (Days)</label>
+                    <input type="number" name="expiry_days" value="{{ settings.default_job_expiry_days }}"
+                        class="form-input-l">
+                </div>
+
+                <div class="form-group-l">
+                    <label class="form-label-l">Default Job Location</label>
+                    <input type="text" name="default_location" value="{{ settings.default_location }}"
+                        class="form-input-l" placeholder="e.g. Remote, New York">
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <h4>Allow Remote by Default</h4>
+                        <p>Enable the remote option for all new job postings.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="allow_remote" 
+                        {% if settings.allow_remote_default %}
+                            checked
+                        {% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <h4>Salary Visibility</h4>
+                        <p>Show salary range on job listings by default.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="salary_visibility" 
+                        {% if settings.default_salary_visibility %} 
+                            checked
+                        {% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-save-settings">Save Job Defaults</button>
+            </form>
+        </div>
+
+        <!-- Privacy Tab -->
+        <div class="tab-content" id="privacy">
+            <div class="section-header">
+                <h3 class="section-title">Privacy & Visibility</h3>
+                <p class="section-desc">Control what information is visible to candidates and search engines.</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="privacy">
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <h4>Public Company Profile</h4>
+                        <p>Allow candidates to see your company profile page.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="show_profile" 
+                        {% if settings.show_profile_publicly %}
+                            checked
+                        {% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <h4>Show Recruiter Name</h4>
+                        <p>Display your name as the hiring manager on job postings.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="show_name" 
+                        {% if settings.show_name_publicly %}
+                            checked
+                        {% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <h4>Allow Direct Messaging</h4>
+                        <p>Let candidates message you directly regarding applications.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="allow_dm" 
+                        {% if settings.allow_direct_messaging %}
+                            checked
+                        {% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <h4>Follow Updates</h4>
+                        <p>Allow candidates to save your company and receive updates.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="allow_save" 
+                        {% if settings.allow_candidate_save_company %} 
+                            checked
+                        {% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-save-settings">Save Privacy Settings</button>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    // Tab switching logic
+    const navItems = document.querySelectorAll('.settings-nav-item');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const tabId = item.getAttribute('data-tab');
+
+            // Update nav active state
+            navItems.forEach(nav => nav.classList.remove('active'));
+            item.classList.add('active');
+
+            // Update content active state
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === tabId) {
+                    content.classList.add('active');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

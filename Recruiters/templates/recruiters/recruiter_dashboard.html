@@ -1,0 +1,205 @@
+{% extends "base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Recruiter Dashboard{% endblock %}
+{% block page_title %}Recruiter Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="welcome-banner"
+    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+    <div class="welcome-text">
+        <h1 style="font-size: 28px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">Welcome back, 
+            {{ request.user.name|default:request.user.username }}! 👋</h1>
+        <p style="color: white;">Here's what's happening with your job postings and applicants.</p>
+    </div>
+    <div class="welcome-actions" style="display: flex; gap: 16px; align-items: center;">
+        <select class="filter-select" onchange="window.location.href='?days='+this.value"
+            style="padding: 12px 24px; border-radius: 12px; border: 1px solid #1E6F63; font-weight: 700; outline: none; background: white; color: #1E6F63">
+            <option value="7" {% if selected_days == 7 %}selected{% endif %}>Last 7 Days</option>
+            <option value="30" {% if selected_days == 30 %}selected{% endif %}>Last 30 Days</option>
+            <option value="90" {% if selected_days == 90 %}selected{% endif %}>Last 3 months</option>
+        </select>
+        <a href="{% url 'post_job' %}" class="btn-post-job"
+            style="padding: 12px 24px; border-radius: 12px; font-weight: 700;">
+            <i class="fa-solid fa-plus"></i> Post a New Job
+        </a>
+    </div>
+</div>
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-briefcase"></i></div>
+            <div class="growth-indicator {% if views_growth >= 0 %}growth-up{% else %}growth-down{% endif %}">
+                <i class="fa-solid {% if views_growth >= 0 %}fa-arrow-up{% else %}fa-arrow-down{% endif %}"></i> 
+                {{ views_growth }}%
+            </div>
+        </div>
+        <h2 style="margin-top: 16px;">{{ total_job_views }}</h2>
+        <p>Total Profile Views</p>
+    </div>
+
+    <div class="stat-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div class="stat-icon stat-icon-green"><i class="fa-solid fa-check-circle"></i></div>
+            <span class="badge badge-success" style="font-size: 10px;">Live Now</span>
+        </div>
+        <h2 style="margin-top: 16px;">{{ active_jobs }}</h2>
+        <p>Active Vacancies</p>
+    </div>
+
+    <div class="stat-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-file-invoice"></i></div>
+            <div class="growth-indicator {% if apps_growth >= 0 %}growth-up{% else %}growth-down{% endif %}">
+                <i class="fa-solid {% if apps_growth >= 0 %}fa-arrow-up{% else %}fa-arrow-down{% endif %}"></i> 
+                {{ apps_growth }}%
+            </div>
+        </div>
+        <h2 style="margin-top: 16px;">{{ total_applications }}</h2>
+        <p>Total Applicants</p>
+    </div>
+
+    <div class="stat-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div class="stat-icon stat-icon-orange"><i class="fa-solid fa-users"></i></div>
+            <span class="text-muted-sm" style="font-weight: 700;">Global</span>
+        </div>
+        <h2 style="margin-top: 16px;">{{ shortlist_rate }}%</h2>
+        <p>Shortlist Rate</p>
+    </div>
+
+</div>
+
+<div class="dashboard-grid">
+    <section class="card">
+        <div class="card-header">
+            <h3 class="card-title">Applications Distribution</h3>
+            <span class="text-muted-sm">Applications per job</span>
+        </div>
+        <div class="chart-container-wrapper">
+            {% if job_names %}
+            <canvas id="applicationsChart"></canvas>
+            {% else %}
+            <div class="empty-state">
+                <i class="fa-solid fa-chart-pie" style="font-size: 48px; color: #e2e8f0; margin-bottom: 16px;"></i>
+                <p>Not enough data to show charts yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Activity Timeline -->
+    <section class="card">
+        <h3 class="card-title mb-20">Recent Activity</h3>
+        <div class="activity-timeline">
+            {% for activity in activities %}
+            <a href="{% if 'Job' in activity.description %}{% url 'manage_jobs' %}{% else %}{% url 'manage_applications' %}{% endif %}"
+                class="activity-item-link" style="text-decoration: none; display: block; margin-bottom: 20px;">
+                <div class="activity-item" style="transition: 0.2s;">
+                    <div class="activity-icon">
+                        <i class="{{ activity.icon_class }}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p class="activity-text" style="color: #1e293b; font-weight: 500;">{{ activity.description }}
+                        </p>
+                        <span class="activity-time">{{ activity.timestamp|timesince }} ago</span>
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <div class="empty-state py-40">
+                <i class="fa-solid fa-clock-rotate-left"
+                    style="font-size: 48px; color: #e2e8f0; margin-bottom: 16px;"></i>
+                <p>No activity yet. Start posting jobs!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="card">
+        <h3 class="card-title mb-20">Performance Shortcuts</h3>
+        <div class="flex-column">
+            <a href="{% url 'manage_jobs' %}" class="action-card-link">
+                <div class="icon-box-sm bg-primary-light"><i class="fa-solid fa-list-check icon-primary"></i></div>
+                <div style="flex-grow: 1;">
+                    <p class="fw-700 text-dark mb-2">Manage Active Jobs</p>
+                    <p class="text-muted-sm">Edit, close or delete postings</p>
+                </div>
+                <i class="fa-solid fa-chevron-right text-muted" style="font-size: 12px;"></i>
+            </a>
+            <a href="{% url 'manage_applications' %}" class="action-card-link">
+                <div class="icon-box-sm" style="background: #eef2ff;"><i
+                        class="fa-solid fa-user-graduate icon-indigo"></i></div>
+                <div style="flex-grow: 1;">
+                    <p class="fw-700 text-dark mb-2">Review Applicants</p>
+                    <p class="text-muted-sm">Screen and shortlist talent</p>
+                </div>
+                <i class="fa-solid fa-chevron-right text-muted" style="font-size: 12px;"></i>
+            </a>
+            <a href="{% url 'market_insights' %}" class="action-card-link">
+                <div class="icon-box-sm" style="background: #fffbeb;"><i class="fa-solid fa-chart-line icon-amber"></i>
+                </div>
+                <div style="flex-grow: 1;">
+                    <p class="fw-700 text-dark mb-2">Market Insights</p>
+                    <p class="text-muted-sm">View hiring trends & data</p>
+                </div>
+                <i class="fa-solid fa-chevron-right text-muted" style="font-size: 12px;"></i>
+            </a>
+        </div>
+    </section>
+</div>
+
+<section class="card mt-32">
+    <div class="card-header">
+        <h3 class="card-title">Recent Postings</h3>
+        <a href="{% url 'manage_jobs' %}" class="text-primary-semibold">View All Jobs</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Job Title</th>
+                <th>Status</th>
+                <th>Applicants</th>
+                <th>Date Posted</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in recent_jobs %}
+            <tr>
+                <td>
+                    <div class="flex-align-center">
+                        <div class="icon-box-sm bg-primary-light">
+                            <i class="fa-solid fa-briefcase"></i>
+                        </div>
+                        <span class="fw-600 text-dark">{{ job.title }}</span>
+                    </div>
+                </td>
+                <td>
+                    {% if job.is_active %}
+                    <span class="badge badge-success">Active</span>
+                    {% else %}
+                    <span class="badge badge-error">Closed</span>
+                    {% endif %}
+                </td>
+                <td class="fw-700 text-dark">{{ job.applications.count }}</td>
+                <td class="text-muted">{{ job.created_at|date:"M d, Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-muted-sm text-center p-32">No recent jobs found.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}
+
+{% block js %}
+{{ job_names|json_script:"job-names-data" }}
+{{ application_counts|json_script:"application-counts-data" }}
+<script src="{% static 'js/recruiter_dashboard.js' %}"></script>
+{% endblock %}

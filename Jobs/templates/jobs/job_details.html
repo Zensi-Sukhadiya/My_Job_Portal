@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Job-Details | JobPortal{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/job_details.css' %}" />
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero-section -->
+<section class="page-header">
+  <div class="container">
+    <h1>Job <span class="text-gradient">Insights</span></h1>
+    <p class="breadcrumb">
+      <a href="{% url 'home' %}">Home</a>
+      <span class="divider">/</span>
+      <a href="{% url 'job_listings' %}">Find Jobs</a>
+      <span class="divider">/</span> <span>Details</span>
+    </p>
+  </div>
+</section>
+
+<!-- Sub-Hero / Profile Bar -->
+<section class="filter-search-card">
+  <div class="wrapper">
+    {% if job %}
+    <h2 class="job-title">{{ job.title }}</h2>
+    {% if job.recruiter.recruiter %}
+    <a href="{% url 'public_company_profile' job.recruiter.recruiter.id %}" class="company-link">
+      <span class="company-name">{{ job.company }}
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      </span>
+    </a>
+    {% else %}
+    <span class="company-name text-muted">{{ job.company }}</span>
+    {% endif %}
+
+    <div class="job-meta">
+      <span><i class="fa-solid fa-location-dot"></i> {{ job.location }}</span>
+      <span><i class="fa-solid fa-briefcase"></i> {{ job.job_type }}</span>
+      <span><i class="fa-solid fa-clock"></i> {{ job.posted_at|timesince }} ago</span>
+    </div>
+    {% else %}
+    <h2 class="job-title">Find Your Perfect Role</h2>
+    <span class="company-name">Explore careers across top-tier industries</span>
+    {% endif %}
+
+    <!-- SEARCH BAR -->
+    <div class="search-row">
+      <form method="GET" action="{% url 'job_listings' %}">
+        <div class="search-input-group">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" name="q" placeholder="Enter keywords to discover more roles..."
+            value="{{ query|default:'' }}" class="search-input">
+        </div>
+        <button type="submit" class="search-main-btn">Search All Jobs</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- LAYOUT WRAPPER -->
+<div class="layout container">
+  <!-- MAIN SECTION -->
+  <main class="main">
+    <!-- Job Description Section -->
+    <section class="job-description">
+      <div class="desc-card">
+        {% if job %}
+        <h2>Detailed Overview</h2>
+        <p>{{ job.description }}</p>
+
+        <div class="overview-actions">
+          {% if has_applied %}
+          <div class="btn-applied-success">
+            <i class="fa-solid fa-circle-check"></i> Already Applied
+          </div>
+          {% else %}
+          <a href="{% url 'job_apply' job.id %}" class="btn-primary-apply">
+            Apply Now <i class="fa-solid fa-arrow-right"></i>
+          </a>
+          {% endif %}
+
+          {% if request.user.role == 'student' %}
+          <form action="{% url 'save_job' job.id %}" method="POST" class="save-job-form">
+            {% csrf_token %}
+            <button type="submit" class="btn-save-job {% if is_saved %}active{% endif %}"
+              title="{% if is_saved %}Unsave Job{% else %}Save Job{% endif %}">
+              <i class="{% if is_saved %}fa-solid{% else %}fa-regular{% endif %} fa-bookmark"></i>
+            </button>
+          </form>
+          {% endif %}
+        </div>
+        {% else %}
+        <h2>Explore Career Opportunities</h2>
+        <p class="overview-text">Join our community of over 100k+ professionals and get access to exclusive roles from
+          top companies worldwide.</p>
+
+        <ul class="desc-list">
+          <li>Verified job listings with transparent salary ranges.</li>
+          <li>Direct connection with hiring managers and recruiters.</li>
+          <li>Access to industry insights and market trends.</li>
+          <li>Personalized job alerts tailored to your edge.</li>
+        </ul>
+
+        <div class="stats-box">
+          <div class="stat-item">
+            <h3>2,450+</h3>
+            <p>Opportunities Available This Week</p>
+          </div>
+        </div>
+
+        <div class="overview-actions">
+          <a href="{% url 'job_listings' %}" class="btn-primary btn-browse-portal">Browse
+            Job Board</a>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- ===== COMPANY REVIEWS SECTION ===== -->
+    {% if job %}
+    <section class="reviews-section desc-card">
+      <div class="reviews-header">
+        <h2>Company Reviews
+          {% if avg_rating %}
+          <span class="avg-rating-tag">
+            ★ {{ avg_rating|floatformat:1 }} / 5
+          </span>
+          {% endif %}
+        </h2>
+        <span class="review-count-label">{{ company_reviews.count }}
+          review
+          {{ company_reviews.count|pluralize }}
+        </span>
+      </div>
+
+      {% for review in company_reviews %}
+      <div class="review-card">
+        <div class="review-stars">
+          {% for i in "12345" %}
+          {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %} {% endfor %} </div>
+            <div class="review-title">{{ review.title }}</div>
+            {% if review.pros %}
+            <p class="pro-text"><strong>👍 Pros:</strong> {{ review.pros }}</p>
+            {% endif %}
+            {% if review.cons %}
+            <p class="con-text"><strong>👎 Cons:</strong> {{ review.cons }}</p>
+            {% endif %}
+            <div class="review-meta">
+              {% if review.is_anonymous %}Anonymous{% else %}{{ review.reviewer.name|default:review.reviewer.username
+              }}{% endif %} &middot; {{ review.created_at|date:"M Y" }}
+            </div>
+        </div>
+        {% empty %}
+        <p class="review-empty-message">No reviews yet. Be the first to share your experience!</p>
+        {% endfor %}
+
+        {% if user.is_authenticated and user.role == 'student' %}
+        {% if user_reviewed %}
+        <p class="reviewed-success-alert">
+          <i class="fa-solid fa-circle-check"></i> You've already reviewed this company.
+        </p>
+        {% else %}
+        <div class="review-form-card">
+          <h4><i class="fa-solid fa-star" style="color: #f59e0b;"></i> Leave a Review</h4>
+          <form method="POST" action="{% url 'submit_company_review' job.recruiter.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <div class="star-rating-input">
+              {% for i in "54321" %}
+              <input type="radio" name="rating" id="star{{ i }}" value="{{ i }}">
+              <label for="star{{ i }}">★</label>
+              {% endfor %}
+            </div>
+            <input type="text" name="title" class="form-control" placeholder="Review title (e.g. Great hiring process)"
+              required>
+            <textarea name="pros" class="form-control" rows="2"
+              placeholder="What was good about this company?"></textarea>
+            <textarea name="cons" class="form-control" rows="2" placeholder="What could be improved?"></textarea>
+            <label class="anon-label">
+              <input type="checkbox" name="is_anonymous"> Post anonymously
+            </label>
+            <button type="submit" class="btn-primary btn-submit-review">Submit
+              Review</button>
+          </form>
+        </div>
+        {% endif %}
+        {% endif %}
+    </section>
+    {% endif %}
+  </main>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="deadline-card">
+      <h3>Application Portal</h3>
+      <div class="deadline-box">
+        {% if job %}
+        Expires: {{ job.deadline|date:"M d, Y" }}
+        {% else %}
+        Open Enrollment
+        {% endif %}
+      </div>
+      <p style="margin-top: 1.5rem; font-size: 0.875rem; color: var(--slate-500); text-align: center;">Applications are
+        processed on a rolling basis. Early submissions are encouraged.</p>
+    </div>
+
+    <!-- AI SKILLS MATCH CARD -->
+    {% if skills_match_score is not None %}
+    <div class="match-card">
+      <h3><i class="fa-solid fa-brain" style="color: var(--primary);"></i> AI Skills Match</h3>
+      {% with pct=skills_match_score %}
+      <div class="match-ring-wrap">
+        <div class="match-ring" style="--pct: {{ pct }}%;
+                 --color: {% if pct >= 70 %}#22c55e{% elif pct >= 40 %}#f59e0b{% else %}#ef4444{% endif %};">
+          <span>{{ pct }}%</span>
+        </div>
+        <div>
+          <div style="font-weight: 800; font-size: 1.1rem;">
+            {% if pct >= 70 %}Great Match!{% elif pct >= 40 %}Decent Fit{% else %}Skills Gap{% endif %}
+          </div>
+          <div class="match-label">Based on your profile skills</div>
+        </div>
+      </div>
+      {% endwith %}
+      {% if matched_skills %}
+      <div style="margin-bottom: 0.75rem;">
+        <div
+          style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 6px;">
+          Matched ✅</div>
+        {% for s in matched_skills %}<span class="skill-chip chip-match">{{ s }}</span>{% endfor %}
+      </div>
+      {% endif %}
+      {% if missing_skills %}
+      <div>
+        <div
+          style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 6px;">
+          Not Found ❌</div>
+        {% for s in missing_skills %}<span class="skill-chip chip-miss">{{ s }}</span>{% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% elif user.is_authenticated and user.role == 'student' %}
+    <div class="match-card" style="text-align:center; color: #94a3b8;">
+      <i class="fa-solid fa-brain fa-2x" style="margin-bottom: 0.75rem;"></i>
+      <p style="font-size: 0.875rem;">Add skills to your profile to see your AI match score!</p>
+    </div>
+    {% endif %}
+
+    <!-- SHARE CARD -->
+    <div class="post-card">
+      <h3 style="color: var(--white); margin-bottom: 1rem; font-weight: 950;">Refer a Leader</h3>
+      <p>Know someone perfect for this role? Share it with your network and help them level up.</p>
+
+      <div class="social-icons">
+        <a href="#" class="post-icon"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#" class="post-icon"><i class="fa-brands fa-twitter"></i></a>
+        <a href="#" class="post-icon"><i class="fa-brands fa-linkedin-in"></i></a>
+        <a href="#" class="post-icon"><i class="fa-solid fa-link"></i></a>
+      </div>
+
+      <div style="border-top: 1px solid rgba(255,255,255,0.1); margin-top: 2rem; padding-top: 2rem;">
+        <h4 style="color: var(--white); margin-bottom: 0.75rem;">Scale Your Team</h4>
+        <p>Verified recruiters get 3x higher quality applicants. Start hiring today.</p>
+        <a href="{% url 'post_job' %}" class="post-btn" style="margin-top: 1.5rem;">Post Your Opening</a>
+      </div>
+    </div>
+  </aside>
+</div>
+
+{% endblock %}

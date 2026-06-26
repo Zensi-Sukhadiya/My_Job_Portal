@@ -1,0 +1,42 @@
+{% extends "base_dashboard.html" %}
+
+{% block title %}Delete Job{% endblock %}
+{% block page_title %}Confirm Deletion{% endblock %}
+
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/delete_job.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="delete-wrapper">
+
+    <section class="card delete-card">
+        <div class="delete-content">
+            <div class="delete-warning-icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+
+            <h2 class="delete-title">Delete Job Posting?</h2>
+            <p class="delete-message">
+                You are about to delete <strong>"{{ job.title }}"</strong>. This action cannot be undone and will remove
+                all associated statistics.
+            </p>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="delete-actions">
+                    <button type="submit" class="btn-delete-final">
+                        Yes, Delete Permanently
+                    </button>
+                    <a href="{% url 'manage_jobs' %}" class="btn-cancel-delete">
+                        No, Keep This Job
+                    </a>
+                </div>
+            </form>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

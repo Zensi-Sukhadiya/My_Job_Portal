@@ -1,0 +1,666 @@
+{% extends "base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Manage Applications{% endblock %}
+{% block page_title %}Applicant Tracking System (ATS){% endblock %}
+
+{% block css %}
+<style>
+    .ats-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .filter-bar {
+        background: var(--white);
+        padding: 24px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        align-items: flex-end;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .filter-group label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+    }
+
+    .select-filter {
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        font-size: 14px;
+        min-width: 200px;
+        outline: none;
+        background: #f8fafc;
+    }
+
+    .applications-table-card {
+        background: var(--white);
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+    }
+
+    .ats-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .ats-table th {
+        text-align: left;
+        padding: 16px 24px;
+        background: #f8fafc;
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 700;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .ats-table td {
+        padding: 20px 24px;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+
+    .candidate-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .candidate-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: var(--primary-light);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 16px;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: capitalize;
+    }
+
+    .status-pending {
+        background: #fef9c3;
+        color: #854d0e;
+    }
+
+    .status-shortlisted {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .action-btn-group {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-ats-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border);
+        background: white;
+        color: #64748b;
+        transition: all 0.2s;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .btn-ats-icon:hover {
+        background: var(--bg-main);
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+
+    /* MODAL STYLES */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+        background: white;
+        width: 90%;
+        max-width: 800px;
+        border-radius: 24px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        padding: 40px;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 32px;
+    }
+
+    .modal-close {
+        cursor: pointer;
+        font-size: 24px;
+        color: #64748b;
+    }
+
+    .candidate-detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 280px;
+        gap: 40px;
+    }
+
+    .detail-section h5 {
+        font-size: 14px;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 12px;
+        font-weight: 800;
+    }
+
+    .detail-content {
+        background: #f8fafc;
+        padding: 20px;
+        border-radius: 16px;
+        font-size: 15px;
+        line-height: 1.6;
+        margin-bottom: 24px;
+    }
+
+    .notes-textarea {
+        width: 100%;
+        height: 120px;
+        border-radius: 12px;
+        padding: 16px;
+        border: 1px solid var(--border);
+        resize: none;
+        font-family: inherit;
+        outline: none;
+    }
+
+    .btn-save-notes {
+        margin-top: 12px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .stats-mini-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .stat-mini-box {
+        background: #f1f5f9;
+        padding: 12px;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .stat-mini-box p {
+        font-size: 11px;
+        color: #64748b;
+        margin-bottom: 4px;
+    }
+
+    .stat-mini-box span {
+        font-weight: 700;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ats-container">
+    <form class="filter-bar" method="GET">
+        <div class="filter-group">
+            <label>Filter by Job</label>
+            <select name="job" class="select-filter" onchange="this.form.submit()">
+                <option value="">All Job Postings</option>
+                {% for job in jobs %}
+                <option value="{{ job.id }}" {% if selected_job==job.id %}selected{% endif %}>{{ job.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Status</label>
+            <select name="status" class="select-filter" onchange="this.form.submit()">
+                <option value="">All Statuses</option>
+                {% for code, label in status_choices %}
+                <option value="{{ code }}" {% if selected_status==code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <a href="{% url 'manage_applications' %}" class="btn-cancel-post"
+            style="padding: 10px 20px; font-size: 14px;">Clear Filters</a>
+    </form>
+
+    <div class="applications-table-card">
+        <table class="ats-table">
+            <thead>
+                <tr>
+                    <th>Candidate</th>
+                    <th>Job Applied</th>
+                    <th>Applied Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                <tr>
+                    <td>
+                        <div class="candidate-cell">
+                            <div class="candidate-avatar">
+                                {{ app.first_name|slice:":1"|default:app.student.user.username|slice:":1"|upper }}
+                            </div>
+                            <div>
+                                <p class="fw-700 mb-0">{{ app.first_name }} {{ app.last_name }}</p>
+                                <span class="text-muted-sm">{{ app.student.user.email|default:app.email }}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="fw-600" style="font-size: 14px;">{{ app.job.title }}</div>
+                    </td>
+                    <td>{{ app.applied_at|date:"M d, Y" }}</td>
+                    <td>
+                        <span class="status-badge status-{{ app.status }}">
+                            {{ app.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-btn-group">
+                            <button class="btn-ats-icon" onclick="viewCandidate({{ app.id }})" title="View Details">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            {% if app.resume %}
+                            <a href="{{ app.resume.url }}" target="_blank" class="btn-ats-icon" title="Download Resume">
+                                <i class="fa-solid fa-file-arrow-down"></i>
+                            </a>
+                            {% endif %}
+                            {% if app.status != 'shortlisted' %}
+                            <a href="{% url 'update_application_status' app.id 'shortlisted' %}" class="btn-ats-icon"
+                                title="Shortlist">
+                                <i class="fa-solid fa-check text-success"></i>
+                            </a>
+                            {% endif %}
+                            {% if app.status != 'rejected' %}
+                            <a href="{% url 'update_application_status' app.id 'rejected' %}" class="btn-ats-icon"
+                                title="Reject">
+                                <i class="fa-solid fa-xmark text-error"></i>
+                            </a>
+                            {% endif %}
+                            {% if app.status == 'shortlisted' or app.status == 'interview' %}
+                            <button class="btn-ats-icon" style="color: #2563eb; border-color: #2563eb;"
+                                onclick="openInterviewModal({{ app.id }})" title="Schedule Interview">
+                                <i class="fa-solid fa-calendar-plus"></i>
+                            </button>
+                            {% endif %}
+                            {% if app.status == 'interview' %}
+                            <a href="{% url 'cancel_interview' app.id %}" class="btn-ats-icon" title="Cancel Interview"
+                                style="color: #dc2626;" onclick="return confirm('Cancel this interview?');">
+                                <i class="fa-solid fa-calendar-xmark"></i>
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'delete_application' app.id %}" class="btn-ats-icon"
+                                title="Delete Application" style="color: #be123c;"
+                                onclick="return confirm('Permanently delete this application? This action cannot be undone.');">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 60px;">
+                        <img src="{% static 'images/empty-box.png' %}" alt="No applications"
+                            style="width: 80px; opacity: 0.3; margin-bottom: 16px; display: block; margin-left: auto; margin-right: auto;">
+                        <p class="text-muted">No applications matching your filters.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- INTERVIEW SCHEDULE MODAL -->
+<div class="modal-overlay" id="interviewModal" style="z-index: 1100;">
+    <div class="modal-content" style="max-width: 520px;">
+        <div class="modal-header">
+            <div>
+                <h2 style="margin-bottom: 4px;"><i class="fa-solid fa-calendar-plus" style="color: var(--primary);"></i>
+                    Schedule Interview</h2>
+                <p class="text-muted" style="font-size: 14px;">Fill in the details and notify the candidate.</p>
+            </div>
+            <i class="fa-solid fa-xmark modal-close" onclick="closeInterviewModal()"></i>
+        </div>
+        <form method="POST" id="interviewForm" action="#">
+            {% csrf_token %}
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div>
+                    <label style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Date &
+                        Time</label>
+                    <input type="datetime-local" name="scheduled_at" class="form-control" required
+                        style="margin-top: 6px;">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label
+                            style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Format</label>
+                        <select name="format" class="form-control" style="margin-top: 6px;">
+                            <option value="video">Video Call</option>
+                            <option value="phone">Phone Call</option>
+                            <option value="in_person">In Person</option>
+                            <option value="technical">Technical Test</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label
+                            style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Duration
+                            (mins)</label>
+                        <input type="number" name="duration_minutes" class="form-control" value="60" min="15"
+                            style="margin-top: 6px;">
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Zoom
+                        Link / Location</label>
+                    <input type="text" name="location_or_link" class="form-control"
+                        placeholder="https://zoom.us/... or office address" style="margin-top: 6px;">
+                </div>
+                <div>
+                    <label style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Notes
+                        for Candidate</label>
+                    <textarea name="notes" class="notes-textarea" placeholder="Preparation tips, documents to bring..."
+                        style="margin-top: 6px;"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-12 radius-12 fw-800" style="margin-top: 8px;">
+                    <i class="fa-solid fa-paper-plane"></i> Confirm & Notify Candidate
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="modal-overlay" id="candidateModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="flex-align-center gap-16">
+                <div class="candidate-avatar" style="width: 64px; height: 64px; font-size: 24px;" id="modalAvatar">A
+                </div>
+                <div>
+                    <h2 id="modalName" style="margin-bottom: 4px;">Candidate Name</h2>
+                    <p id="modalEmail" class="text-muted">candidate@email.com</p>
+                </div>
+            </div>
+            <i class="fa-solid fa-xmark modal-close" onclick="closeModal()"></i>
+        </div>
+
+        <div class="candidate-detail-grid">
+            <div class="detail-main">
+                <div class="detail-section" id="headlineSection" style="display: none;">
+                    <h5 id="modalHeadline"
+                        style="font-size: 1.1rem; color: var(--primary); text-transform: none; margin-bottom: 20px;">
+                        Headline</h5>
+                </div>
+
+                <div class="detail-section">
+                    <h5>Cover Letter</h5>
+                    <div class="detail-content" id="modalCoverLetter">
+                        Loading...
+                    </div>
+                </div>
+
+                <div class="detail-section" id="bioSection" style="display: none;">
+                    <h5>Professional Bio</h5>
+                    <div class="detail-content" id="modalBio">
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h5>Skills at time of Application</h5>
+                    <div class="detail-content" id="modalSkills">
+                        Loading...
+                    </div>
+                </div>
+
+                <div class="detail-section" id="liveSkillsSection" style="display: none;">
+                    <h5>Live Profile Skills (Profile Sync)</h5>
+                    <div class="detail-content" id="modalLiveSkills"
+                        style="display: flex; flex-wrap: wrap; gap: 8px; background: #f0fdf4; border: 1px solid #dcfce7;">
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h5>Private Notes (Recruiter Only)</h5>
+                    <textarea id="modalNotes" class="notes-textarea"
+                        placeholder="Add your private feedback about this candidate..."></textarea>
+                    <button class="btn-save-notes" id="saveNotesBtn">Save Notes</button>
+                </div>
+            </div>
+
+            <aside class="detail-sidebar">
+                <div class="detail-section">
+                    <h5>Application Info</h5>
+                    <div class="stat-mini-box mb-16" style="text-align: left; background: var(--bg-main);">
+                        <p>Applied For</p>
+                        <span id="modalJobTitle">Loading...</span>
+                    </div>
+                    <div class="stats-mini-grid mb-24">
+                        <div class="stat-mini-box">
+                            <p>Date</p>
+                            <span id="modalDate">-</span>
+                        </div>
+                        <div class="stat-mini-box">
+                            <p>Status</p>
+                            <span id="modalStatus">-</span>
+                        </div>
+                    </div>
+
+                    <h5>Candidate Metadata</h5>
+                    <div class="flex-column gap-12 mb-24">
+                        <div class="flex-between">
+                            <span class="text-muted-sm">Graduate</span>
+                            <span class="fw-700" id="modalGraduate">-</span>
+                        </div>
+                        <div class="flex-between">
+                            <span class="text-muted-sm">Exp. Salary</span>
+                            <span class="fw-700" id="modalSalary">-</span>
+                        </div>
+                        <div class="flex-between">
+                            <span class="text-muted-sm">Phone</span>
+                            <span class="fw-700" id="modalPhone">-</span>
+                        </div>
+                    </div>
+
+                    <h5 id="socialHeader" style="display: none;">Connect</h5>
+                    <div class="flex-align-center gap-12 mb-32" id="socialLinks" style="display: none;">
+                        <a id="linkGithub" href="#" target="_blank" class="btn-ats-icon" title="GitHub"><i
+                                class="fa-brands fa-github"></i></a>
+                        <a id="linkLinkedin" href="#" target="_blank" class="btn-ats-icon" title="LinkedIn"><i
+                                class="fa-brands fa-linkedin"></i></a>
+                        <a id="linkPortfolio" href="#" target="_blank" class="btn-ats-icon" title="Portfolio"><i
+                                class="fa-solid fa-globe"></i></a>
+                    </div>
+
+                    <a id="modalResumeBtn" href="#" target="_blank" class="btn-publish-job"
+                        style="display: block; text-align: center; text-decoration: none;">
+                        <i class="fa-solid fa-download mr-8"></i> Download Resume
+                    </a>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    let currentAppId = null;
+
+    async function viewCandidate(appId) {
+        currentAppId = appId;
+        const modal = document.getElementById('candidateModal');
+        modal.style.display = 'flex';
+
+        try {
+            const response = await fetch(`/recruiters/candidate-details/${appId}/`);
+            const data = await response.json();
+
+            document.getElementById('modalName').innerText = data.name;
+            document.getElementById('modalAvatar').innerText = data.name.charAt(0).toUpperCase();
+            document.getElementById('modalEmail').innerText = data.email;
+            document.getElementById('modalCoverLetter').innerText = data.cover_letter || 'No cover letter provided.';
+            document.getElementById('modalSkills').innerText = data.snapshot_skills || 'No skills listed.';
+            document.getElementById('modalJobTitle').innerText = data.job_title;
+            document.getElementById('modalDate').innerText = data.applied_at;
+            document.getElementById('modalStatus').innerText = data.status.toUpperCase();
+            document.getElementById('modalGraduate').innerText = data.graduate || 'N/A';
+            document.getElementById('modalSalary').innerText = data.salary_range || 'N/A';
+            document.getElementById('modalPhone').innerText = data.phone || 'N/A';
+            document.getElementById('modalNotes').value = data.notes || '';
+
+            // Profile Sync Content
+            const headlineSec = document.getElementById('headlineSection');
+            if (data.headline) {
+                document.getElementById('modalHeadline').innerText = data.headline;
+                headlineSec.style.display = 'block';
+            } else {
+                headlineSec.style.display = 'none';
+            }
+
+            const bioSec = document.getElementById('bioSection');
+            if (data.bio) {
+                document.getElementById('modalBio').innerText = data.bio;
+                bioSec.style.display = 'block';
+            } else {
+                bioSec.style.display = 'none';
+            }
+
+            const liveSkillsSec = document.getElementById('liveSkillsSection');
+            const liveSkillsContainer = document.getElementById('modalLiveSkills');
+            if (data.live_skills && data.live_skills.length > 0) {
+                liveSkillsContainer.innerHTML = data.live_skills.map(skill => `<span class="status-badge" style="background:#dcfce7; color:#166534; padding: 4px 10px;">${skill}</span>`).join('');
+                liveSkillsSec.style.display = 'block';
+            } else {
+                liveSkillsSec.style.display = 'none';
+            }
+
+            // Social Links
+            const socialHeader = document.getElementById('socialHeader');
+            const socialLinks = document.getElementById('socialLinks');
+            let hasSocial = false;
+
+            if (data.github) { document.getElementById('linkGithub').href = data.github; document.getElementById('linkGithub').style.display = 'flex'; hasSocial = true; } else { document.getElementById('linkGithub').style.display = 'none'; }
+            if (data.linkedin) { document.getElementById('linkLinkedin').href = data.linkedin; document.getElementById('linkLinkedin').style.display = 'flex'; hasSocial = true; } else { document.getElementById('linkLinkedin').style.display = 'none'; }
+            if (data.portfolio) { document.getElementById('linkPortfolio').href = data.portfolio; document.getElementById('linkPortfolio').style.display = 'flex'; hasSocial = true; } else { document.getElementById('linkPortfolio').style.display = 'none'; }
+
+            socialHeader.style.display = hasSocial ? 'block' : 'none';
+            socialLinks.style.display = hasSocial ? 'flex' : 'none';
+
+            const resumeBtn = document.getElementById('modalResumeBtn');
+            if (data.resume_url) {
+                resumeBtn.href = data.resume_url;
+                resumeBtn.style.display = 'block';
+            } else {
+                resumeBtn.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Error fetching details:', error);
+            alert('Failed to load candidate details.');
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('candidateModal').style.display = 'none';
+    }
+
+    document.getElementById('saveNotesBtn').addEventListener('click', async function () {
+        if (!currentAppId) return;
+
+        const notes = document.getElementById('modalNotes').value;
+        this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+        this.disabled = true;
+
+        try {
+            const response = await fetch(`/recruiters/application-notes/${currentAppId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ notes: notes })
+            });
+            const data = await response.json();
+            if (data.status === 'success') {
+                alert('Notes saved successfully!');
+            }
+        } catch (error) {
+            console.error('Error saving notes:', error);
+            alert('Failed to save notes.');
+        } finally {
+            this.innerHTML = 'Save Notes';
+            this.disabled = false;
+        }
+    });
+
+    window.onclick = function (event) {
+        const candidateModal = document.getElementById('candidateModal');
+        const interviewModal = document.getElementById('interviewModal');
+        if (event.target == candidateModal) closeModal();
+        if (event.target == interviewModal) closeInterviewModal();
+    }
+
+    function openInterviewModal(appId) {
+        const form = document.getElementById('interviewForm');
+        form.action = `/recruiters/schedule-interview/${appId}/`;
+        document.getElementById('interviewModal').style.display = 'flex';
+    }
+
+    function closeInterviewModal() {
+        document.getElementById('interviewModal').style.display = 'none';
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home | JobPortal{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}" />
+<link rel="stylesheet" href="{% static 'css/job_list.css' %}" />
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="home-hero">
+  <div class="hero-decorative-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="container hero-container">
+    <div class="hero-content-wrapper">
+      <div class="hero-badge-container">
+        <span class="hero-badge">#1 Platform for Future Leaders 🚀</span>
+      </div>
+      <h1 class="hero-title">Your Next Career <br> <span class="text-gradient">Milestone</span> Begins Here.</h1>
+      <p class="hero-subtitle">Connect with high-growth companies and opportunities tailored to your professional edge.
+        Your ambition deserves a better platform.</p>
+
+      <div class="main-search-bar">
+        <form method="get" action="{% url 'job_listings' %}" class="search-form">
+          <div class="search-input-group">
+            <i class="fa-solid fa-list-ul search-icon-left"></i>
+            <select name="category" class="category-dropdown">
+              <option value="">All Categories</option>
+              {% for category in categories %}
+              <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>
+                {{ category.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="search-divider"></div>
+          <div class="search-input-group flex-grow-1">
+            <i class="fa-solid fa-location-dot search-icon-left"></i>
+            <input type="text" name="location" placeholder="Location..." value="{{ selected_location }}"
+              class="keyword-input">
+          </div>
+          <div class="search-divider"></div>
+          <div class="search-input-group flex-grow-1">
+            <i class="fa-solid fa-magnifying-glass search-icon-left"></i>
+            <input type="text" name="q" placeholder="Job title, skills, or company..." value="{{ query }}"
+              class="keyword-input">
+          </div>
+          <button type="submit" class="search-submit-btn">Search Jobs</button>
+        </form>
+      </div>
+
+      <!-- Trust Signals -->
+      <div class="hero-trust-signals">
+        <div class="trust-item">
+          <span class="trust-count">{{ total_jobs_count|default:"2,500" }}+</span>
+          <span class="trust-label">Active Roles</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <span class="trust-count">{{ total_companies_count|default:"450" }}+</span>
+          <span class="trust-label">Top Hiring</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <span class="trust-count">{{ total_candidates_count|default:"12,000" }}+</span>
+          <span class="trust-label">Verified Users</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LAYOUT WRAPPER -->
+<div class="layout container">
+
+  <!-- MAIN SECTION -->
+  <main class="main-feed">
+    <div id="job-container" class="jobs-section">
+      <div class="section-header">
+        <h2 class="section-title">Latest Opportunities</h2>
+        <a href="{% url 'job_listings' %}" class="view-all-link">Browse All Jobs</a>
+      </div>
+
+      {% include "jobs/partials/job_list_partial.html" %}
+
+    </div>
+  </main>
+
+  <!-- Sidebar -->
+  <aside class="home-sidebar">
+
+    <div class="sidebar-widget">
+      <h3 class="widget-title">Trending Categories</h3>
+
+      <ul class="trending-list">
+        {% for category in categories %}
+        <li class="trending-item">
+          <a href="{% url 'job_listings' %}?category={{ category.slug }}" class="trending-link">
+            <div class="trending-left">
+              <div class="trending-icon-box {{ category.slug }}">
+                <i class="{{ category.icon_class }}"></i>
+              </div>
+              <span class="trending-name">{{ category.name }}</span>
+            </div>
+            <div class="trending-right">
+              <span class="trending-count">{{ category.job_count }}</span>
+              <i class="fa-solid fa-chevron-right arrow-icon"></i>
+            </div>
+          </a>
+        </li>
+        {% empty %}
+        <li class="empty-list">No categories available.</li>
+        {% endfor %}
+      </ul>
+      <a href="{% url 'job_listings' %}" class="widget-footer-link">View All Categories</a>
+    </div>
+
+    <!-- POST JOB -->
+    <div class="recruiter-mini-cta">
+      <div class="cta-icon-outer">
+        <i class="fa-solid fa-rocket"></i>
+      </div>
+      <h4>Hire Top Talent</h4>
+      <p>Reach over 50k+ active candidates and build your team.</p>
+      <a href="{% url 'post_job' %}" class="cta-mini-btn">Start Hiring Now</a>
+    </div>
+  </aside>
+</div>
+
+<!-- MARKET INSIGHTS PREVIEW -->
+<section class="insights-preview-section container">
+  <div class="insights-card">
+    <div class="insights-text-col">
+      <span class="insights-badge">Platform Intelligence</span>
+      <h2 class="insights-title">Data-Driven Recruitment</h2>
+      <p class="insights-description">
+        Gain a competitive edge with our real-time market data. Analyze salary benchmarks, demand trends, and skill gaps
+        across industries.
+      </p>
+      <a href="{% url 'market_insights_public' %}" class="insights-action-btn">Explore Market Trends</a>
+    </div>
+
+    <ul class="insights-stats-grid">
+      <li class="insights-stat-item">
+        <h3 class="stat-value">14%</h3>
+        <p class="stat-label">Avg. Growth Rate</p>
+      </li>
+      <li class="insights-stat-item">
+        <h3 class="stat-value">Remote</h3>
+        <p class="stat-label">Top Work Mode</p>
+      </li>
+      <li class="insights-stat-item">
+        <h3 class="stat-value">₹15L</h3>
+        <p class="stat-label">Median Salary</p>
+      </li>
+      <li class="insights-stat-item">
+        <h3 class="stat-value">Gen-AI</h3>
+        <p class="stat-label">Hottest Skill</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- RECRUITER CTA SECTION -->
+<section class="recruiter-hero-cta container">
+  <div class="cta-banner-box">
+    <div class="cta-glow-bg"></div>
+
+    <div class="cta-content-left">
+      <h2 class="cta-main-title">Ready to build your <br><span class="highlight-text">dream team?</span></h2>
+      <p class="cta-subtitle">
+        Join thousands of industry-leading companies using JobPortal to streamline their hiring process and connect with
+        verified talent.
+      </p>
+      <div class="cta-btn-group">
+        <a href="{% url 'recruiter_login' %}" class="cta-primary-btn">Post a Job Now</a>
+        <a href="{% url 'recruiter_dashboard' %}" class="cta-secondary-btn">Browse Dashboard</a>
+      </div>
+    </div>
+
+    <div class="cta-features-grid">
+      <div class="feature-picket">
+        <span class="feature-label">Trust Score</span>
+        <span class="feature-val">98%</span>
+      </div>
+      <div class="feature-picket">
+        <span class="feature-label">Avg. Fill Time</span>
+        <span class="feature-val">12 Days</span>
+      </div>
+      <div class="feature-picket">
+        <span class="feature-label">Active ATS</span>
+        <span class="feature-val">Included</span>
+      </div>
+      <div class="feature-picket">
+        <span class="feature-label">AI Filters</span>
+        <span class="feature-val">Ready</span>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'js/job_list.js' %}"></script>
+{% endblock %}

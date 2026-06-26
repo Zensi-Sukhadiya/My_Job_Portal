@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Job-Listings | JobPortal{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/job_list.css' %}" />
+{% endblock %}
+
+
+{% block content %}
+
+<!-- Hero-section -->
+<section class="page-header">
+  <div class="container">
+    <h1>Discover Your <span class="text-gradient">Opportunity</span></h1>
+    <p class="breadcrumb">
+      <a href="{% url 'home' %}">Home</a> 
+      <span class="divider">/</span> 
+      <a href="{% url 'job_listings' %}">Find Jobs</a>
+    </p>
+  </div>
+</section>
+
+<!-- Sub-Hero / Filters -->
+<section class="filter-search-card">
+  <div class="wrapper">
+    <!-- CATEGORY BUTTONS -->
+    <div class="filter-bar">
+      <a href="{% url 'job_listings' %}" class="filter-btn {% if not selected_category %}active{% endif %}">
+        <i class="fa-solid fa-grid-2"></i> All Roles
+      </a>
+
+      {% for category in categories %}
+      <a href="{% url 'job_listings' %}?category={{ category.slug }}"
+        class="filter-btn {% if selected_category == category.slug %}active{% endif %}">
+        <i class="{{ category.icon_class }}"></i> {{ category.name }}
+      </a>
+      {% endfor %}
+    </div>
+
+    <!-- SEARCH BAR -->
+    <div class="search-row">
+      <form method="GET" action="{% url 'job_listings' %}">
+        <div class="search-input-group">
+          <i class="fa-solid fa-list-ul"></i>
+          <select name="category">
+            <option value="">All Categories</option>
+            {% for category in categories %}
+            <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>
+              {{ category.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="div-row"></div>
+
+        <div class="search-input-group">
+          <i class="fa-solid fa-location-dot"></i>
+          <input type="text" name="location" placeholder="Location..." value="{{ selected_location|default:'' }}">
+        </div>
+
+        <div class="div-row"></div>
+
+        <div class="search-input-group">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" name="q" placeholder="Search title, skills or company..." value="{{ query|default:'' }}">
+        </div>
+
+        <button type="submit" class="search-main-btn">Search Jobs</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- LAYOUT WRAPPER -->
+<div class="layout container">
+  <!-- MAIN SECTION -->
+  <main class="main">
+    <div id="job-container">
+      <h2 class="section-title">Latest Opportunities</h2>
+      {% include "jobs/partials/job_list_partial.html" %}
+
+      {% if jobs.has_other_pages %}
+      <div class="pagination">
+        {% if jobs.has_previous %}
+        <a href="?page={{ jobs.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_location %}&location={{ selected_location }}{% endif %}{% if selected_job_type %}&job_type={{ selected_job_type }}{% endif %}"
+          class="page-link">
+          <i class="fa-solid fa-chevron-left"></i> Previous
+        </a>
+        {% endif %}
+
+        <span class="current">
+          Page {{ jobs.number }} of {{ jobs.paginator.num_pages }}
+        </span>
+
+        {% if jobs.has_next %}
+        <a href="?page={{ jobs.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_location %}&location={{ selected_location }}{% endif %}{% if selected_job_type %}&job_type={{ selected_job_type }}{% endif %}"
+          class="page-link">
+          Next <i class="fa-solid fa-chevron-right"></i>
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </main>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <h3>Job Type</h3>
+      <ul class="category-list">
+        <li
+          onclick="window.location.href='?category={{ selected_category }}&q={{ query }}&location={{ selected_location }}';">
+          <div class="cat-left">
+            <span class="cat-icon" style="background: var(--slate-200); color: var(--slate-600);">
+              <i class="fa-solid fa-layer-group"></i></span>
+            All Types
+          </div>
+          {% if not selected_job_type %}
+          <i class="fa-solid fa-circle-check" style="color: var(--primary);"></i>
+          {% endif %}
+        </li>
+        {% for value, label in job_types %}
+        <li
+          onclick="window.location.href='?job_type={{ value }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}{% if selected_location %}&location={{ selected_location }}{% endif %}';">
+          <div class="cat-left">
+            <span class="cat-icon" style="background: var(--primary-light); color: var(--primary);">
+              <i class="fa-solid fa-briefcase"></i></span>
+            {{ label }}
+          </div>
+          {% if selected_job_type == value %}<i class="fa-solid fa-circle-check" style="color: var(--primary);"></i>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="sidebar-card">
+      <h3>Trending Segments</h3>
+      <ul class="category-list">
+        {% for category in categories %}
+        <li onclick="window.location.href='{% url 'job_listings' %}?category={{ category.slug }}';">
+          <div class="cat-left">
+            <span class="cat-icon {{ category.slug }}">
+              <i class="{{ category.icon_class }}"></i>
+            </span>
+            {{ category.name }}
+          </div>
+          <span class="count">{{ category.job_count }}</span>
+        </li>
+        {% empty %}
+        <li class="empty-state">No categories available.</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- POST JOB -->
+    <div class="post-card">
+      <div class="post-icon">
+        <i class="fa-solid fa-rocket"></i>
+      </div>
+      <h4>Hire the Best</h4>
+      <p>Connect with over 100k+ verified professionals and build your world-class team.</p>
+      <a href="{% url 'post_job' %}" class="post-btn">Get Started Now</a>
+    </div>
+  </aside>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'js/job_list.js' %}"></script>
+{% endblock %}

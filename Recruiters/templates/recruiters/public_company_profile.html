@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ recruiter.company_name }} | Company Profile{% endblock %}
+
+{% block css %}
+<style>
+    .profile-hero {
+        background: #f8fafc;
+        padding-top: 60px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .hero-container {
+        display: flex;
+        gap: 40px;
+        align-items: flex-end;
+        padding-bottom: 60px;
+    }
+
+    .company-logo-lg {
+        width: 140px;
+        height: 140px;
+        border-radius: 24px;
+        background: white;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 4px solid white;
+        overflow: hidden;
+    }
+
+    .company-logo-lg img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .company-details h1 {
+        font-size: 36px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
+
+    .company-badges {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .badge-pill {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        background: white;
+        border: 1px solid #e2e8f0;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .badge-pill i {
+        font-size: 12px;
+    }
+
+    .badge-verified {
+        background: #dcfce7;
+        color: #166534;
+        border-color: #bbf7d0;
+    }
+
+    .profile-grid {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 48px;
+        padding: 60px 0;
+    }
+
+    .section-title {
+        font-size: 24px;
+        font-weight: 800;
+        margin-bottom: 24px;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .about-card {
+        background: white;
+        border-radius: 24px;
+        padding: 32px;
+        line-height: 1.8;
+        color: #334155;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 35px;
+    }
+
+    .jobs-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .job-mini-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+    }
+
+    .job-mini-card:hover {
+        border-color: #1e6f63;
+        transform: scale(1.01);
+    }
+
+    .sidebar-card {
+        background: #f1f5f9;
+        border-radius: 24px;
+        padding: 24px;
+        position: sticky;
+        top: 100px;
+    }
+
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .info-item p {
+        font-size: 12px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .info-item span {
+        font-weight: 700;
+        color: #0f172a;
+        font-size: 15px;
+    }
+
+    .social-links {
+        display: flex;
+        gap: 12px;
+        margin-top: 32px;
+    }
+
+    .social-link {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .social-link:hover {
+        background: #0f172a;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="profile-hero">
+    <div class="container border-0">
+        <div class="hero-container">
+            <div class="company-logo-lg">
+                {% if recruiter.company_logo %}
+                <img src="{{ recruiter.company_logo.url }}" alt="{{ recruiter.company_name }}">
+                {% else %}
+                <i class="fa-solid fa-building" style="font-size: 48px; color: #cbd5e1;"></i>
+                {% endif %}
+            </div>
+            <div class="company-details">
+                <div class="company-badges mb-12">
+                    {% if recruiter.verification_status == 'verified' %}
+                    <span class="badge-pill badge-verified">
+                        <i class="fa-solid fa-circle-check"></i> Verified Employer
+                    </span>
+                    {% endif %}
+                    <span class="badge-pill">
+                        <i class="fa-solid fa-briefcase"></i> {{ recruiter.total_active_jobs }} Active Jobs
+                    </span>
+                </div>
+                <h1>{{ recruiter.company_name }}</h1>
+                <p class="text-muted" style="font-size: 18px;">
+                    {{ recruiter.industry }} • {{ recruiter.city }}, {{ recruiter.country }}
+                </p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="container border-0">
+    <div class="profile-grid">
+        <div class="profile-main">
+            <section class="mb-60">
+                <h3 class="section-title">About {{ recruiter.company_name }}</h3>
+                <div class="about-card">
+                    {{ recruiter.company_description|default:"This company has not provided a description yet."|linebreaks }}  
+                </div>
+            </section>
+
+            <section>
+                <div class="flex-between align-center mb-24">
+                    <h3 class="section-title mb-0">Active Job Openings</h3>
+                </div>
+                <div class="jobs-list">
+                    {% for job in active_jobs %}
+                    <div class="job-mini-card">
+                        <div>
+                            <h4 class="fw-800 text-dark mb-4">{{ job.title }}</h4>
+                            <p class="text-muted-sm">{{ job.location }} • {{ job.get_job_type_display }} • {{ job.salary}}</p>
+                        </div>
+                        <a href="{% url 'job_details' job.id %}" class="btn-cancel-post"
+                            style="padding: 10px 20px; font-size: 13px;">View Details</a>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-40 bg-light rounded-24">
+                        <p class="text-muted">No active openings at the moment.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+
+        <aside class="profile-sidebar">
+            <div class="sidebar-card">
+                <div class="info-list">
+                    <div class="info-item">
+                        <p>Website</p>
+                        {% if recruiter.company_website %}
+                            <a href="{{ recruiter.company_website }}" target="_blank" class="fw-700 text-primary">
+                                {{ recruiter.company_website }}
+                            </a>
+                        {% else %}
+                            <span>Not provided</span>
+                        {% endif %}
+                    </div>
+                    <div class="info-item">
+                        <p>Company Size</p>
+                        <span>{{ recruiter.get_company_size_display|default:"Unknown" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <p>Industry</p>
+                        <span>{{ recruiter.industry|default:"Not provided" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <p>Founded Year</p>
+                        <span>{{ recruiter.founded_year|default:"Not provided" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <p>Location</p>
+                        <span>
+                            {{ recruiter.address|default:"" }}
+                            {% if recruiter.address and recruiter.city %}, {% endif %}
+                            {{ recruiter.city|default:"Not provided" }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="social-links">
+                    {% if recruiter.linkedin_profile %}
+                    <a href="{{ recruiter.linkedin_profile }}" class="social-link"><i class="fa-brands fa-linkedin-in"></i></a>
+                    {% endif %}
+                    {% if recruiter.twitter %}
+                    <a href="{{ recruiter.twitter }}" class="social-link"><i class="fa-brands fa-twitter"></i></a>
+                    {% endif %}
+                    {% if recruiter.facebook %}
+                    <a href="{{ recruiter.facebook }}" class="social-link"><i class="fa-brands fa-facebook-f"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}

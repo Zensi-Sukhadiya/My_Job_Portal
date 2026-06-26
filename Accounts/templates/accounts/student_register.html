@@ -1,0 +1,132 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Register – JobPortal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+
+<body>
+
+    <div class="auth-split">
+        <!-- FORM SIDE -->
+        <div class="auth-form-side">
+            <div class="auth-form-container">
+                <header class="logo-header">
+                    <a href="{% url 'home' %}" class="logo-link">
+                        <div class="logo-icon">
+                            <i class="fa-solid fa-briefcase"></i>
+                        </div>
+                        <div class="logo-text">
+                            <span class="job">Job</span><span class="portal">Portal</span>
+                        </div>
+                    </a>
+                </header>
+
+                <div class="auth-header">
+                    <h1>Join the Elite</h1>
+                    <p>Create your student profile and unlock world-class career paths.</p>
+                </div>
+
+                <form class="form active" method="POST" action="{% url 'student_register' %}">
+                    {% csrf_token %}
+
+                    {% if messages %}
+                    <div class="messages-lite">
+                        {% for message in messages %}
+                        <p
+                            class="msg-lite {% if message.tags == 'error' or message.tags == 'danger' %}msg-error{% else %}msg-success{% endif %}">
+                            <i
+                                class="fa-solid {% if message.tags == 'error' or message.tags == 'danger' %}fa-circle-exclamation{% else %}fa-circle-check{% endif %}"></i>
+                            {{ message }}
+                        </p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="input-group">
+                        <label class="input-label">Full Name</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-user"></i>
+                            <input type="text" name="name" placeholder="John Doe" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Username</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-id-badge"></i>
+                            <input type="text" name="username" placeholder="johndoe123" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Professional Email</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-envelope"></i>
+                            <input type="email" name="email" placeholder="john@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Secure Password</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" name="password1" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Confirm Password</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" name="password2" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="auth-btn">Create Free Account</button>
+
+                    <p class="auth-footer">
+                        Already have an account?
+                        <a href="{% url 'student_login' %}">Sign in</a>
+                    </p>
+
+                    <div class="back-home">
+                        <a href="{% url 'home' %}" class="back-home-link">
+                            <i class="fa-solid fa-arrow-left"></i> Back to Home
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- VISUAL SIDE -->
+        <div class="auth-visual-side">
+            <div class="visual-content">
+                <h2 class="visual-title">
+                    <span>Build</span>
+                    Your Legacy
+                    <span>Today.</span>
+                </h2>
+                <div class="visual-stats">
+                    <div class="stat-item">
+                        <h3>98%</h3>
+                        <p>Placement Rate</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>$85k</h3>
+                        <p>Avg. Starting Salary</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

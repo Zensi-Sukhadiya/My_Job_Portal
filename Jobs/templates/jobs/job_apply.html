@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Apply for {{ job.title }} | JobPortal{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/job_apply.css' %}" />
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero-section -->
+<section class="page-header">
+    <div class="container">
+        <h1>Discover Your <span class="text-gradient">Opportunity</span></h1>
+        <p class="breadcrumb">
+            <a href="{% url 'home' %}">Home</a>
+            <span class="divider">/</span>
+            <a href="{% url 'job_listings' %}">Find Jobs</a>
+            <span class="divider">/</span>
+            <span>Apply</span>
+        </p>
+    </div>
+</section>
+
+<section class="job-header">
+    <div class="container">
+        <div class="job-info">
+            <h2>{{ job.title }}</h2>
+
+            <p class="company-name">
+                <i class="fa-solid fa-building"></i> {{ job.company }}
+            </p>
+
+            <div class="job-meta">
+                <span><i class="fa-solid fa-location-dot"></i> {{ job.location }}</span>
+                <span><i class="fa-solid fa-clock"></i> {{ job.job_type }}</span>
+                <span><strong>₹ {{ job.salary }}</strong></span>
+            </div>
+
+            <p class="job-desc-short">
+                {{ job.description|truncatewords:40 }}
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- LAYOUT WRAPPER -->
+<div class="layout container">
+
+    <!-- MAIN SECTION -->
+    <section class="job-form-card">
+        <form method="POST" enctype="multipart/form-data" id="jobApplyForm"
+            onsubmit="return validateApplication('{{ user.is_authenticated }}')">
+            {% csrf_token %}
+            <h3 class="form-title">Submit Your Application</h3>
+            <p class="paragh">Complete the details below to start your journey with {{ job.company }}.</p>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" name="first_name" placeholder="John" required>
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" name="last_name" placeholder="Doe" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" placeholder="john@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="text" name="phone" placeholder="+91 98765 43210" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Job Category</label>
+                    <select name="category" required>
+                        <option value="" disabled selected>Select Category</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.slug }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="salary-box">
+                    <label>Salary Expectation (Monthly)</label>
+                    <div class="salary-inputs">
+                        <input type="number" name="min_salary" placeholder="Min ₹">
+                        <span>-</span>
+                        <input type="number" name="max_salary" placeholder="Max ₹">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Highest Qualification</label>
+                <input type="text" name="graduate" placeholder="e.g. B.Tech / MBA" required>
+            </div>
+
+            <div class="form-group">
+                <label>Cover Letter</label>
+                <textarea class="job-desc" name="cover_letter"
+                    placeholder="Tell us why you're a great fit..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Key Skills</label>
+                <textarea class="job-desc" name="skills" placeholder="List your relevant top skills..."></textarea>
+            </div>
+
+            <label class="upload-label">Resume / Curriculum Vitae</label>
+            <div class="upload-box" onclick="document.getElementById('resume-input').click()">
+                <div class="upload-btn">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Choose File
+                </div>
+                <input type="file" id="resume-input" name="resume" hidden required onchange="updateFileName(this)">
+                <span id="file-name" class="file-text">Drag and drop or click to upload</span>
+                <p class="file-note">Accepted formats: PDF, DOCX (Max 5MB)</p>
+            </div>
+
+            <button type="submit" class="post-job-btn">
+                Submit Application
+            </button>
+        </form>
+    </section>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="post-card">
+            <h4>Quick Apply</h4>
+            <p>Connect your profiles to apply even faster.</p>
+            <div class="social-icons">
+                <a href="#" class="post-icon" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="#" class="post-icon" title="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="#" class="post-icon" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                <a href="#" class="post-icon" title="Google"><i class="fa-brands fa-google"></i></a>
+            </div>
+            <a href="{% url 'job_apply' job.id %}" class="post-btn">Priority Apply</a>
+        </div>
+
+        <div class="deadline-card">
+            <h3>Application Tips</h3>
+            <ul class="desc-list">
+                <li>Professional profile photo</li>
+                <li>Clear & concise cover letter</li>
+                <li>Updated resume (PDF only)</li>
+                <li>Double check contact info</li>
+            </ul>
+            <span>Success Awaits!</span>
+        </div>
+    </aside>
+</div>
+
+<!-- LOGIN POPUP -->
+<div id="loginPopup" class="popup">
+    <div class="popup-content">
+        <div class="popup-icon">
+            <i class="fa-solid fa-lock"></i>
+        </div>
+        <h3>Join JobPortal</h3>
+        <p>You need to be signed in to submit this application.</p>
+
+        <div class="popup-btns">
+            <a href="{% url 'student_login' %}" class="login-btn">Sign In Now</a>
+            <button onclick="closePopup()" class="close-btn">Maybe Later</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'js/job_apply.js' %}"></script>
+{% endblock %}

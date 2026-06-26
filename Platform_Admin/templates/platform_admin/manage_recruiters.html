@@ -1,0 +1,81 @@
+{% extends "base_dashboard.html" %}
+{% block title %}Manage Recruiters{% endblock %}
+{% block page_title %}Recruiter Approvals{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="card-header">
+        <h3 class="card-title">Recruiter List</h3>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Name / Email</th>
+                <th>Company</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for recruiter in recruiters %}
+            <tr>
+                <td>{{ recruiter.name|default:recruiter.username }}<br><small class="text-muted">{{ recruiter.email
+                        }}</small></td>
+                <td>{{ recruiter.recruiter_profile.company_name|default:"Not set" }}</td>
+                <td>
+                    {% if recruiter.is_approved %}
+                    <span class="badge badge-success">Approved</span>
+                    {% else %}
+                    <span class="badge badge-warning">Pending Approval</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not recruiter.is_approved %}
+                    <a href="{% url 'approve_recruiter' recruiter.id %}" class="btn-verify-p">
+                        <i class="fa-solid fa-user-check mr-4"></i> Approve
+                    </a>
+                    {% else %}
+                    <span class="text-muted-sm">No action needed</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center p-32">No recruiters found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}
+
+{% block css %}
+<style>
+    .btn-verify-p {
+        padding: 6px 12px;
+        background: var(--primary);
+        color: white;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.2s;
+    }
+
+    .btn-verify-p:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+    }
+
+    .mr-4 {
+        margin-right: 4px;
+    }
+
+    .badge-warning {
+        background: #fffbeb;
+        color: #b45309;
+    }
+</style>
+{% endblock %}

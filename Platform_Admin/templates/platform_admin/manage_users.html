@@ -1,0 +1,117 @@
+{% extends "base_dashboard.html" %}
+{% block title %}Manage Users{% endblock %}
+{% block page_title %}User Management{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="card-header">
+        <h3 class="card-title">Platform Users</h3>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>
+                    <div class="flex-align-center">
+                        <i class="fa-solid fa-circle-user fa-2x text-muted mr-12"></i>
+                        <div>
+                            <p class="fw-700 mb-0">{{ user.name|default:user.username }}</p>
+                            <span class="text-muted-sm">{{ user.email }}</span>
+                        </div>
+                    </div>
+                </td>
+                <td><span class="badge bg-light text-dark">{{ user.role|capfirst }}</span></td>
+                <td>
+                    {% if user.is_active %}
+                    <span class="text-success-sm"><i class="fa-solid fa-circle text-xs mr-4"></i> Active</span>
+                    {% else %}
+                    <span class="text-error-sm"><i class="fa-solid fa-circle text-xs mr-4"></i> Blocked</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <form action="{% url 'toggle_user_status' user.id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        {% if user.is_active %}
+                        <button type="submit" class="btn-action-text text-error">
+                            <i class="fa-solid fa-user-slash mr-4"></i> Block User
+                        </button>
+                        {% else %}
+                        <button type="submit" class="btn-action-text text-success">
+                            <i class="fa-solid fa-user-check mr-4"></i> Unblock User
+                        </button>
+                        {% endif %}
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center p-32">No other users found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}
+
+{% block css %}
+<style>
+    .mr-12 {
+        margin-right: 12px;
+    }
+
+    .mr-4 {
+        margin-right: 4px;
+    }
+
+    .text-success-sm {
+        color: #10b981;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .text-error-sm {
+        color: #ef4444;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .text-xs {
+        font-size: 8px;
+    }
+
+    .btn-action-text {
+        background: none;
+        border: none;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .text-error {
+        color: #ef4444;
+    }
+
+    .text-error:hover {
+        background: #fee2e2;
+    }
+
+    .text-success {
+        color: #10b981;
+    }
+
+    .text-success:hover {
+        background: #d1fae5;
+    }
+</style>
+{% endblock %}

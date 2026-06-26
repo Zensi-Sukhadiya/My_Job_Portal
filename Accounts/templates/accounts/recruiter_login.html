@@ -1,0 +1,235 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Login – JobPortal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+
+<body>
+
+    <div class="auth-split">
+        <!-- FORM SIDE -->
+        <div class="auth-form-side">
+            <div class="auth-form-container">
+                <header class="logo-header">
+                    <a href="{% url 'home' %}" class="logo-link">
+                        <div class="logo-icon">
+                            <i class="fa-solid fa-briefcase"></i>
+                        </div>
+                        <div class="logo-text">
+                            <span class="job">Job</span><span class="portal">Portal</span>
+                        </div>
+                    </a>
+                </header>
+
+                <div class="auth-header">
+                    <h1 id="authTitle">Elite Recruiting</h1>
+                    <p id="authSubtitle">Scale your team with the world's most ambitious talent.</p>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <form class="form login-form active" method="POST" action="{% url 'recruiter_login' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="login">
+
+                    {% if messages %}
+                    <div class="messages-lite">
+                        {% for message in messages %}
+                        <p
+                            class="msg-lite {% if message.tags == 'error' or message.tags == 'danger' %}msg-error{% else %}msg-success{% endif %}">
+                            <i
+                                class="fa-solid {% if message.tags == 'error' or message.tags == 'danger' %}fa-circle-exclamation{% else %}fa-circle-check{% endif %}"></i>
+                            {{ message }}
+                        </p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="input-group">
+                        <label class="input-label">Recruiter Email</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-envelope"></i>
+                            <input type="email" name="email" placeholder="hiring@company.com" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group" style="margin-bottom: 0.5rem;">
+                        <label class="input-label">Password</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" name="password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div style="text-align: right; margin-bottom: 2rem;">
+                        <a href="javascript:void(0)" id="showForgot"
+                            style="color: var(--primary); font-size: 0.875rem; font-weight: 700; text-decoration: none;">Forgot
+                            password?</a>
+                    </div>
+
+                    <button type="submit" class="auth-btn">Enter Dashboard</button>
+
+                    <p class="auth-footer">
+                        New recruiter?
+                        <a href="javascript:void(0)" id="showRegister">Partner with Us</a>
+                    </p>
+                </form>
+
+                <!-- REGISTER FORM -->
+                <form class="form register-form" method="POST" action="{% url 'recruiter_login' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="register">
+
+                    <div class="input-group">
+                        <label class="input-label">Full Name</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-user"></i>
+                            <input type="text" name="name" placeholder="Alexander Pierce" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Username</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-id-badge"></i>
+                            <input type="text" name="username" placeholder="alex_hr" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Organization</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-building"></i>
+                            <input type="text" name="company_name" placeholder="TechSolutions Inc." required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Business Email</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-envelope"></i>
+                            <input type="email" name="email" placeholder="alex@company.com" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Password</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" name="password1" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Confirm Password</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-key"></i>
+                            <input type="password" name="password2" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="auth-btn">Initialize Partnership</button>
+
+                    <p class="auth-footer">
+                        Already registered?
+                        <a href="javascript:void(0)" id="showLogin">Sign In</a>
+                    </p>
+                </form>
+
+                <!-- FORGOT PASSWORD FORM -->
+                <form class="form forgot-form" method="POST" action="{% url 'password_reset' %}">
+                    {% csrf_token %}
+
+                    <p
+                        style="color: var(--slate-500); margin-bottom: 2rem; font-weight: 500; text-align: center; line-height: 1.6;">
+                        Enter your registered email below to receive a secure password reset link.
+                    </p>
+
+                    <div class="input-group">
+                        <label class="input-label">Registered Email</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-envelope"></i>
+                            <input type="email" name="email" placeholder="registered@email.com" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="auth-btn">Send Secure Link</button>
+
+                    <p class="auth-footer">
+                        Remembered?
+                        <a href="javascript:void(0)" id="backToLogin">Back to Security</a>
+                    </p>
+                </form>
+
+                <div class="back-home">
+                    <a href="{% url 'home' %}" class="back-home-link">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISUAL SIDE -->
+        <div class="auth-visual-side">
+            <div class="visual-content">
+                <h2 class="visual-title">
+                    <span>Find</span>
+                    The Next
+                    <span>Genius.</span>
+                </h2>
+                <div class="visual-stats">
+                    <div class="stat-item">
+                        <h3>50k+</h3>
+                        <p>Active Students</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>2min</h3>
+                        <p>Avg. Post Time</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const loginForm = document.querySelector(".login-form");
+        const registerForm = document.querySelector(".register-form");
+        const forgotForm = document.querySelector(".forgot-form");
+        const title = document.getElementById("authTitle");
+        const subtitle = document.getElementById("authSubtitle");
+
+        function switchForm(mode) {
+            loginForm.classList.remove("active");
+            registerForm.classList.remove("active");
+            forgotForm.classList.remove("active");
+
+            if (mode === 'register') {
+                registerForm.classList.add("active");
+                title.innerText = "Join the Circle";
+                subtitle.innerText = "Start hiring the next generation of industry leaders today.";
+            } else if (mode === 'forgot') {
+                forgotForm.classList.add("active");
+                title.innerText = "Account Recovery";
+                subtitle.innerText = "Restore access to your recruiter dashboard.";
+            } else {
+                loginForm.classList.add("active");
+                title.innerText = "Elite Recruiting";
+                subtitle.innerText = "Scale your team with the world's most ambitious talent.";
+            }
+        }
+
+        document.getElementById("showRegister").onmousedown = () => switchForm('register');
+        document.getElementById("showLogin").onmousedown = () => switchForm('login');
+        document.getElementById("showForgot").onmousedown = () => switchForm('forgot');
+        document.getElementById("backToLogin").onmousedown = () => switchForm('login');
+    </script>
+
+</body>
+
+</html>

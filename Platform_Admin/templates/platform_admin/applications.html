@@ -1,0 +1,52 @@
+{% extends "base_dashboard.html" %}
+{% block title %}All Applications{% endblock %}
+{% block page_title %}Global Application Tracking{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="card-header">
+        <h3 class="card-title">All Job Applications</h3>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Job / Company</th>
+                <th>Status</th>
+                <th>Applied Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>{{ app.student.user.name|default:app.student.user.username }}</td>
+                <td>{{ app.job.title }}<br><small class="text-muted">{{ app.job.company }}</small></td>
+                <td>
+                    {% if app.status == 'pending' %}
+                    <span class="badge badge-warning">Pending</span>
+                    {% elif app.status == 'shortlisted' %}
+                    <span class="badge badge-success">Shortlisted</span>
+                    {% elif app.status == 'rejected' %}
+                    <span class="badge badge-error">Rejected</span>
+                    {% endif %}
+                </td>
+                <td class="text-muted">{{ app.applied_at|date:"M d, Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center p-32">No applications found on the platform.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}
+
+{% block css %}
+<style>
+    .badge-warning {
+        background: #fffbeb;
+        color: #b45309;
+    }
+</style>
+{% endblock %}

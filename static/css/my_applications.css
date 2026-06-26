@@ -1,0 +1,257 @@
+/* My Applications Page Styles */
+:root {
+    --primary: #1e6f63;
+    --primary-light: #ecfdf5;
+    --border: #e2e8f0;
+    --white: #ffffff;
+    --bg-main: #f8fafc;
+    --text-dark: #0f172a;
+    --text-muted: #64748b;
+}
+
+.apps-container {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Filter Bar Refinement */
+.filter-card {
+    background: var(--white);
+    padding: 24px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    margin-bottom: 24px;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 120px 60px;
+    gap: 16px;
+    align-items: center;
+}
+
+.search-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input-group i {
+    position: absolute;
+    left: 16px;
+    color: var(--text-muted);
+}
+
+.search-input-group .form-control {
+    padding-left: 44px;
+    height: 48px;
+    border-radius: 12px;
+    border-color: var(--border);
+    background: #f8fafc;
+    transition: all 0.2s;
+}
+
+.search-input-group .form-control:focus {
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(30, 111, 99, 0.1);
+    border-color: var(--primary);
+}
+
+.status-select {
+    height: 48px;
+    border-radius: 12px;
+    border-color: var(--border);
+    background: #f8fafc;
+    font-weight: 500;
+}
+
+.btn-filter {
+    height: 48px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.btn-reset {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    transition: all 0.2s;
+}
+
+.btn-reset:hover {
+    color: var(--primary);
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+/* Table Card Styles */
+.apps-table-card {
+    background: var(--white);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.apps-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.apps-table th {
+    background: #f8fafc;
+    padding: 16px 24px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+}
+
+.apps-table td {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+.apps-table tr:hover {
+    background: #fafcfd;
+}
+
+.job-link {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.job-link:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+.company-tag {
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Badge System Modernization */
+.badge-modern {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid transparent;
+}
+
+.badge-success-lite {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+.badge-info-lite {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #bfdbfe;
+}
+
+.badge-error-lite {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+.badge-blue-lite {
+    background: #e0f2fe;
+    color: #075985;
+    border-color: #bae6fd;
+}
+
+.badge-warning-lite {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #fde68a;
+}
+
+/* Action Icons */
+.action-group {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.btn-action-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+    background: white;
+}
+
+.btn-withdraw {
+    color: #2563eb;
+    border-color: #dbeafe;
+}
+
+.btn-withdraw:hover {
+    background: #eff6ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.1);
+}
+
+.btn-delete {
+    color: #e11d48;
+    border-color: #fee2e2;
+}
+
+.btn-delete:hover {
+    background: #fff1f2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(225, 29, 72, 0.1);
+}
+
+/* Responsive Fixes */
+@media (max-width: 992px) {
+    .filter-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .btn-filter,
+    .btn-reset {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+}

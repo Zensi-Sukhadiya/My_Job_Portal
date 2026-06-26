@@ -1,0 +1,72 @@
+{% extends "base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Saved Jobs | JobPortal{% endblock %}
+{% block page_title %}Saved Jobs{% endblock %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/job_list.css' %}">
+<link rel="stylesheet" href="{% static 'css/saved_job.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="saved-jobs-container">
+    <div class="header-card-fav">
+        <div class="flex-between align-items-center">
+            <div>
+                <h4 class="fav-title fw-800">Your Favorites</h4>
+                <p class="text-muted-sm">You have <strong>{{ saved_jobs.count }}</strong> jobs bookmarked for later.</p>
+            </div>
+            <a href="{% url 'job_listings' %}" class="btn btn-primary d-none d-md-flex align-items-center gap-10">
+                <i class="fa-solid fa-magnifying-glass"></i> Explore More
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for entry in saved_jobs %}
+        <div class="col-xl-4 col-md-6 mb-30">
+            <div class="job-card-premium h-100">
+                <div class="flex-between mb-20">
+                    <div class="icon-box-premium">
+                        <i class="fa-solid fa-briefcase fa-lg"></i>
+                    </div>
+                    <a href="{% url 'delete_record' 'saved_job' entry.id %}" class="btn-unsave-icon"
+                        title="Remove from favorites">
+                        <i class="fa-solid fa-bookmark"></i>
+                    </a>
+                </div>
+
+                <a href="{% url 'job_details' entry.job.id %}" class="job-title-link">{{ entry.job.title }}</a>
+                <div class="company-name-premium">{{ entry.job.company }}</div>
+
+                <div class="job-meta-list mt-auto">
+                    <div class="meta-item-elite"><i class="fa-solid fa-location-dot"></i> {{ entry.job.location }}</div>
+                    <div class="meta-item-elite"><i class="fa-solid fa-money-bill-wave"></i> {{ entry.job.salary }}</div>
+                    <div class="meta-item-elite"><i class="fa-solid fa-clock opacity-50"></i> Saved {{ entry.saved_at|timesince }} ago</div>
+                </div>
+
+                <div class="card-action-footer">
+                    <a href="{% url 'job_details' entry.job.id %}"
+                        class="btn btn-primary btn-apply-main flex-center">Apply Now</a>
+                    <a href="{% url 'job_details' entry.job.id %}"
+                        class="btn btn-outline btn-details-outline flex-center" title="View Details">
+                        <i class="fa-solid fa-up-right-from-square"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="empty-state-card text-center">
+                <div class="empty-icon-pulse"><i class="fa-regular fa-bookmark"></i></div>
+                <h4 class="fw-800 text-dark">No saved jobs yet</h4>
+                <p class="text-muted mb-25">Bookmark jobs you're interested in while browsing to apply later.</p>
+                <a href="{% url 'job_listings' %}" class="btn btn-primary px-40">Start Exploring</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

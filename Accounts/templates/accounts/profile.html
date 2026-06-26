@@ -1,0 +1,364 @@
+{% extends "base_dashboard.html" %}
+{% load static %}
+
+{% block title %}My Profile | JobPortal{% endblock %}
+{% block page_title %}Account Settings{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header-card">
+        <div class="profile-cover"></div>
+        <div class="profile-avatar-wrapper">
+            <div class="profile-avatar-container">
+                {% if user.profile_picture %}
+                <img src="{{ user.profile_picture.url }}" id="avatar-preview" alt="Profile Picture">
+                {% else %}
+                <div class="avatar-placeholder" id="avatar-placeholder">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                {% endif %}
+                <label for="id_profile_picture" class="avatar-edit-btn">
+                    <i class="fa-solid fa-camera"></i>
+                </label>
+            </div>
+            <div class="profile-meta">
+                <h1>{{ user.name|default:user.username }}</h1>
+                <p><span class="badge badge-role">
+                    {{ user.get_role_display }}</span> • Member since {{user.created_at|date:"M Y" }}
+                </p>
+
+                <div class="completion-container mt-16">
+                    <div class="flex-between mb-4">
+                        <span class="text-muted-sm">Profile Completion</span>
+                        <span class="fw-700 text-primary" style="font-size: 13px;">{{ user.profile_completion }}%</span>
+                    </div>
+                    <div class="completion-bar">
+                        <div class="completion-fill" style="width: {{ user.profile_completion }}%;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid mt-32">
+        <div class="card col-span-2">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fa-solid fa-user-gear mr-8"></i>Personal Information</h3>
+            </div>
+            <form method="POST" enctype="multipart/form-data" class="premium-form">
+                {% csrf_token %}
+                <div style="display: none;">
+                    {{ form.profile_picture }}
+                </div>
+
+                <div class="form-row-grid-2">
+                    <div class="field-wrapper">
+                        <label class="field-label">Full Name</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-user"></i>
+                            {{ form.name }}
+                        </div>
+                    </div>
+                    <div class="field-wrapper">
+                        <label class="field-label">Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-envelope"></i>
+                            {{ form.email }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions mt-24">
+                    <button type="submit" class="btn-save-profile">
+                        <i class="fa-solid fa-floppy-disk mr-8"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title mb-20">Account Security</h3>
+            <div class="flex-column">
+                <a href="{% url 'password_reset' %}" class="action-card-link">
+                    <i class="fa-solid fa-key icon-indigo"></i>
+                    <span class="fw-600">Change Password</span>
+                </a>
+
+                <div class="mt-20">
+                    <h4 class="text-dark fw-700 mb-12" style="font-size: 14px;">Recent Login Activity</h4>
+                    <div class="activity-timeline">
+                        {% for activity in recent_activity %}
+                        <div class="activity-item">
+                            <div class="activity-icon" style="width: 24px; height: 24px; font-size: 10px;">
+                                <i class="{{ activity.icon_class }}"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p class="activity-text" style="font-size: 12px;">{{ activity.action }}</p>
+                                <span class="activity-time">{{ activity.timestamp|timesince }} ago</span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-muted-sm text-center">No recent activity.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block css %}
+<style>
+    .profile-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .profile-header-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        position: relative;
+        margin-bottom: 32px;
+    }
+
+    .profile-cover {
+        height: 160px;
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    }
+
+    .profile-avatar-wrapper {
+        padding: 0 40px 40px;
+        display: flex;
+        align-items: flex-end;
+        margin-top: -60px;
+        gap: 24px;
+    }
+
+    .profile-avatar-container {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        border-radius: 30px;
+        border: 6px solid white;
+        background: #f8fafc;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-avatar-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        color: #cbd5e1;
+    }
+
+    .avatar-edit-btn {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        background: rgba(0, 0, 0, 0.5);
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s;
+        opacity: 0;
+    }
+
+    .profile-avatar-container:hover .avatar-edit-btn {
+        opacity: 1;
+    }
+
+    .profile-meta h1 {
+        font-size: 28px;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 4px;
+    }
+
+    .badge-role {
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 13px;
+        padding: 4px 12px;
+    }
+
+    .mr-8 {
+        margin-right: 8px;
+    }
+
+    .mr-4 {
+        margin-right: 4px;
+    }
+
+    .mt-24 {
+        margin-top: 24px;
+    }
+
+    .mt-16 {
+        margin-top: 16px;
+    }
+
+    .mb-20 {
+        margin-bottom: 20px;
+    }
+
+    .p-16 {
+        padding: 16px;
+    }
+
+    .bg-light {
+        background: #f8fafc;
+    }
+
+    .border-radius-12 {
+        border-radius: 12px;
+    }
+
+    .col-span-2 {
+        grid-column: span 2;
+    }
+
+    /* COMPLETION BAR */
+    .completion-container {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .completion-bar {
+        height: 8px;
+        background: #f1f5f9;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .completion-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%);
+        transition: width 1s ease-in-out;
+    }
+
+    .text-primary {
+        color: #6366f1;
+    }
+
+    .ml-auto {
+        margin-left: auto;
+    }
+
+    .btn-save-profile {
+        background: #6366f1;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn-save-profile:hover {
+        background: #4f46e5;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+    }
+
+    .badge-success-alt {
+        background: #dcfce7;
+        color: #15803d;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .premium-form .field-label {
+        font-weight: 600;
+        color: #64748b;
+        margin-bottom: 8px;
+        display: block;
+        font-size: 14px;
+    }
+
+    .premium-form .input-wrapper {
+        position: relative;
+    }
+
+    .premium-form .input-wrapper i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+    }
+
+    .premium-form .form-control-l {
+        width: 100%;
+        padding: 12px 16px 12px 48px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 15px;
+        transition: all 0.3s;
+        background: #fff;
+    }
+
+    .premium-form .form-control-l:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        outline: none;
+    }
+
+    @media (max-width: 768px) {
+        .profile-avatar-wrapper {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .col-span-2 {
+            grid-column: span 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block js %}
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var preview = document.getElementById('avatar-preview');
+                var placeholder = document.getElementById('avatar-placeholder');
+                if (preview) {
+                    preview.src = e.target.result;
+                } else if (placeholder) {
+                    var img = document.createElement('img');
+                    img.id = 'avatar-preview';
+                    img.src = e.target.result;
+                    placeholder.parentNode.replaceChild(img, placeholder);
+                }
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+{% endblock %}

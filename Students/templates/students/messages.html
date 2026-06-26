@@ -1,0 +1,92 @@
+{% extends "base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Messages | JobPortal{% endblock %}
+{% block page_title %}Direct Messages{% endblock %}
+
+{% block content %}
+
+<div class="messaging-wrapper">
+    <!-- Sidebar / Contacts -->
+    <div class="chat-sidebar">
+        <div class="chat-sidebar-header">
+            <div class="search-input-group">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" class="form-control" placeholder="Search conversations...">
+            </div>
+        </div>
+        <div class="contact-list">
+            {% for contact in contacts %}
+            <a href="?user={{ contact.id }}"
+                class="contact-item {% if selected_user.id == contact.id %}active{% endif %}">
+                <div class="avatar-box">
+                    {% if contact.profile_picture %}
+                    <img src="{{ contact.profile_picture.url }}" class="avatar-sm">
+                    {% else %}
+                    <div class="avatar-placeholder-sm"><i class="fa-solid fa-user"></i></div>
+                    {% endif %}
+                </div>
+                <div class="contact-info">
+                    <div class="fw-700 text-dark">{{ contact.name|default:contact.username }}</div>
+                    <div class="text-muted-sm truncate">{{ contact.get_role_display }}</div>
+                </div>
+            </a>
+            {% empty %}
+            <div class="p-20 text-center text-muted">No conversations yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Main Chat -->
+    <div class="chat-main">
+        {% if selected_user %}
+        <div class="chat-header">
+            <div class="avatar-box">
+                {% if selected_user.profile_picture %}
+                <img src="{{ selected_user.profile_picture.url }}" class="avatar-sm">
+                {% else %}
+                <div class="avatar-placeholder-sm"><i class="fa-solid fa-user"></i></div>
+                {% endif %}
+            </div>
+            <div>
+                <h4 class="fw-800 text-dark mb-0">{{ selected_user.name|default:selected_user.username }}</h4>
+                <div class="text-green fw-600" style="font-size: 12px;"><i class="fa-solid fa-circle"
+                        style="font-size: 8px;"></i> Online</div>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            {% for msg in chat_messages %}
+            <div class="msg-bubble {% if msg.sender == request.user %}msg-sent{% else %}msg-received{% endif %}">
+                {{ msg.body }}
+                <div class="msg-time" style="font-size: 10px; opacity: 0.7; margin-top: 5px; text-align: right;">
+                    {{ msg.timestamp|time:"H:i" }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="chat-footer">
+            <form method="POST" action="{% url 'send_message' %}" class="chat-input-row">
+                {% csrf_token %}
+                <input type="hidden" name="recipient_id" value="{{ selected_user.id }}">
+                <input type="text" name="body" class="chat-input" placeholder="Type your message here..." required
+                    autocomplete="off">
+                <button type="submit" class="btn btn-primary" style="width: 50px;">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <div class="flex-center flex-column h-100 opacity-50">
+            <i class="fa-solid fa-comments fa-4x mb-20"></i>
+            <h3>Select a conversation to start chatting</h3>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'js/message.js' %}"></script>
+{% endblock %}

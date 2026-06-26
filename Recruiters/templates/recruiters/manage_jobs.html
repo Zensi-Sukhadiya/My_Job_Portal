@@ -1,0 +1,60 @@
+{% extends "base_dashboard.html" %}
+
+{% block title %}Manage Jobs{% endblock %}
+{% block page_title %}Manage My Jobs{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3>Your Postings</h3>
+        <a href="{% url 'post_job' %}" class="btn-primary"
+            style="background: #1e6f63; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+            <i class="fa-solid fa-plus"></i> Post New Job
+        </a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Job Title</th>
+                <th>Created At</th>
+                <th>Status</th>
+                <th>Applicants</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs %}
+            <tr>
+                <td>
+                    <div style="font-weight: 600; color: #1e293b;">{{ job.title }}</div>
+                </td>
+                <td>{{ job.created_at|date:"M d, Y" }}</td>
+                <td>
+                    {% if job.is_active %}
+                    <span class="badge green">Active</span>
+                    {% else %}
+                    <span class="badge red">Closed</span>
+                    {% endif %}
+                </td>
+                <td>{{ job.applications.count }}</td>
+                <td>
+                    <div style="display: flex; gap: 8px;">
+                        <a href="{% url 'edit_job' job.id %}" class="edit" title="Edit Job">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                        <a href="{% url 'delete_job' job.id %}" class="delete" title="Delete Job">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 40px;">No jobs posted yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
